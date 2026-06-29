@@ -88,6 +88,13 @@ pnpm check        # typecheck + all tests across the workspace
 
 Requires Node `>=20.19` and pnpm. Built with pnpm workspaces and TypeScript.
 
+`pnpm check` is the full local gate: typecheck, every test suite, and the taxonomy
++ schema drift gate (`pnpm gen` then a clean `git diff`). The `formalize` skill is
+vendored one-way into `plugin/skills/formalize/` via `pnpm vendor:skill`, and the
+machine-readable taxonomy is generated from its references, never hand-copied. A
+GitHub Actions CI lane running `pnpm check` lands when the repo gets its public
+remote.
+
 ## License
 
 MIT.

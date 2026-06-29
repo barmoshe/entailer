@@ -9,6 +9,9 @@
  * claim that the spec was "proven consistent".
  */
 import { z } from "zod";
+import { HONESTY_CONTRACT } from "./generated/taxonomy.js";
+
+export { HONESTY_CONTRACT };
 
 export const verdictSchema = z.enum([
   "VALID",
@@ -22,14 +25,6 @@ export type Verdict = z.infer<typeof verdictSchema>;
 
 export const severitySchema = z.enum(["blocker", "major", "minor", "note"]);
 export type Severity = z.infer<typeof severitySchema>;
-
-/** The ref-99 disclosure, attached to every report. */
-export const HONESTY_CONTRACT =
-  "This report certifies the logical validity and consistency of the displayed " +
-  "formalization only. Validity is not truth: a valid argument can rest on false " +
-  "premises, and premise truth is out of scope. The formalization is a translation " +
-  "of the prose and may be unfaithful; audit the symbol dictionary. The absence of " +
-  "a found contradiction is not a proof of consistency.";
 
 const assignmentSchema = z.record(z.string(), z.boolean());
 
