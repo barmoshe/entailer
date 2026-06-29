@@ -1,0 +1,25 @@
+{
+  "name": "@entailer/cli",
+  "version": "0.1.0",
+  "description": "The Entailer CLI: evaluate a supplied formalization of a sentence or argument and emit an honest LogicReport.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "entailer": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@entailer/core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}

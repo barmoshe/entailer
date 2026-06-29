@@ -1,0 +1,9 @@
+{
+  "verdict": "VALID",
+  "validity": { "status": "VALID", "hasProof": true },
+  "consistency": { "status": "SAT" },
+  "symbolDictionary": [
+    { "symbol": "p", "gloss": "the deploy succeeded" },
+    { "symbol": "q", "gloss": "the release is live" }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "verdict": "INCONSISTENT",
+  "consistency": { "status": "UNSAT", "minimalConflictingSubset": [0, 1, 2] },
+  "symbolDictionary": [
+    { "symbol": "req", "gloss": "the call is a request" },
+    { "symbol": "logged", "gloss": "the call is logged" },
+    { "symbol": "health", "gloss": "the call is a health-check" }
+  ]
+}

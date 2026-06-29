@@ -1,0 +1,15 @@
+{
+  "logic": "PROP",
+  "symbols": [
+    { "kind": "atom", "name": "req", "arity": 0, "gloss": "the call is a request", "source": "stated", "spans": [] },
+    { "kind": "atom", "name": "logged", "arity": 0, "gloss": "the call is logged", "source": "stated", "spans": [] },
+    { "kind": "atom", "name": "health", "arity": 0, "gloss": "the call is a health-check", "source": "stated", "spans": [] }
+  ],
+  "premises": [
+    { "ast": { "type": "implies", "left": { "type": "atom", "name": "req" }, "right": { "type": "atom", "name": "logged" } }, "role": "premise", "source": "stated", "spans": [{ "text": "R1: every request must be logged" }] },
+    { "ast": { "type": "implies", "left": { "type": "atom", "name": "health" }, "right": { "type": "not", "sub": { "type": "atom", "name": "logged" } } }, "role": "premise", "source": "stated", "spans": [{ "text": "R2: health-check requests must not be logged" }] },
+    { "ast": { "type": "and", "left": { "type": "atom", "name": "health" }, "right": { "type": "atom", "name": "req" } }, "role": "premise", "source": "stated", "spans": [{ "text": "R3: /healthz is a request and a health-check" }] }
+  ],
+  "outOfScope": [],
+  "translationConfidence": { "band": "high", "score": 0.95, "signals": ["round-trip-stable"] }
+}
