@@ -131,5 +131,12 @@ export {
   evaluateArgument,
 } from "./adapters/argument.js";
 
+export {
+  type PromptInput,
+  type PromptClaimInput,
+  evaluatePrompt,
+  recoverConclusionIndex,
+} from "./adapters/prompt.js";
+
 // ---- Taxonomy (machine-consumable; seeded, codegen pending) ---------------
 export * from "./taxonomy.js";
