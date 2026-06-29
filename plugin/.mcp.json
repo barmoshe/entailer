@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "entailer": {
+      "command": "npx",
+      "args": ["-y", "@entailer/mcp"]
+    }
+  }
+}

@@ -56,11 +56,13 @@ Logic lives in exactly one place: `@entailer/core` (pure TypeScript, zero LLM or
 solver dependencies, the trusted kernel). See [`DESIGN.md`](./DESIGN.md) for the
 full pipeline, IR schema, tier model, and milestone plan.
 
-## Status: v0.1 (in progress)
+## Status
 
-v0.1 is the deterministic core plus a CLI, taking the formalization as supplied
-input. It builds the IR and source-adapter seam so the later tiers extend the same
-core instead of re-implementing logic.
+v0.1 shipped the deterministic core plus a CLI, taking the formalization as supplied
+input, with the IR and source-adapter seam built so the later tiers extend the same
+core instead of re-implementing logic. v0.2 is underway: the MCP server is built
+(deterministic tools over the core); the LLM translator and the Tier-2 prompt adapter
+are next.
 
 | Tier | Input | v0.1 |
 |---|---|---|
@@ -69,8 +71,8 @@ core instead of re-implementing logic.
 | 3 Markdown | one `.md` | roadmap (v0.3) |
 | 4 Repo | a path, cross-file | roadmap (v0.4) |
 
-The LLM translator, the MCP server, and the visualization package are designed for
-but not built in v0.1.
+The MCP server is built (v0.2). The LLM translator and the visualization package are
+designed for but not built yet.
 
 ## Packages
 
@@ -78,6 +80,7 @@ but not built in v0.1.
 |---|---|
 | `@entailer/core` | The trusted kernel: Formula AST, DSL parser, propositional tableau + DPLL, classification, the IR, and the `LogicReport` schema. Pure, dependency-light. |
 | `@entailer/cli` | `entailer` binary: evaluate a supplied formalization, `--json` output, honest exit codes including a distinct `UNKNOWN`-blocked code. |
+| `@entailer/mcp` | Stdio MCP server exposing deterministic tools (`check_validity`, `check_consistency`, `classify_formula`, `evaluate_sentence`, `evaluate_argument`) with structured output. The default path is one-call: the caller formalizes in-context, then calls these tools. |
 
 ## Develop
 

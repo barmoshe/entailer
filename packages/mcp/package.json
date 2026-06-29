@@ -1,0 +1,27 @@
+{
+  "name": "@entailer/mcp",
+  "version": "0.1.0",
+  "description": "The Entailer MCP server: deterministic check_validity / check_consistency / classify / evaluate tools over @entailer/core, with structured output. Stateless, stdio.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "entailer-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@entailer/core": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}
