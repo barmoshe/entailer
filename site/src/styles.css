@@ -564,35 +564,49 @@ footer code { font-family: var(--mono); color: var(--ink-muted); }
  * the hero leads with the illustration, cards stack full-width, the
  * playground unstacks into artifact-over-verdict, type and rhythm tighten.
  * ================================================================== */
-@media (max-width: 860px) {
-  .hero-grid { grid-template-columns: 1fr; gap: 14px; }
-  .hero-art { order: -1; max-width: 440px; margin: 0 auto; }
-  .glyph { font-size: 230px; top: -30px; right: -4%; }
-  .pkgs { grid-template-columns: 1fr; }
-  .canvas { grid-template-columns: 1fr; }
-  .col-artifact { border-right: none; border-bottom: 1px solid var(--line-soft); }
+/* Tablet (≤ 900px) — the hero collapses to one centered column; the content
+   grids keep their multi-up layouts (packages stay 2-up, playground stays
+   side-by-side until it gets tight below). */
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 22px; }
+  /* image left-aligns with the copy below it (shared left edge), not centered */
+  .hero-art { order: -1; max-width: 500px; margin: 0; }
+  .glyph { font-size: 240px; top: -34px; right: -2%; }
+  section { padding-block: 48px; }
+  .section-head h2 { font-size: 40px; }
 }
 
-@media (max-width: 620px) {
+/* Small tablet / large phone (≤ 760px) — the playground unstacks to
+   artifact-over-verdict; everything else still has room for its grid. */
+@media (max-width: 760px) {
+  .canvas { grid-template-columns: 1fr; }
+  .col-artifact { border-right: none; border-bottom: 1px solid var(--line-soft); }
+  .section-head h2 { font-size: 36px; }
+  .hero-grid { gap: 16px; }
+}
+
+/* Phone (≤ 600px) — a single warm column; type and rhythm tighten. */
+@media (max-width: 600px) {
   body { font-size: 16px; }
   .wrap { padding-inline: 18px; }
-  .hero { padding: 36px 0 18px; }
+  .hero { padding: 34px 0 16px; }
   .hero-art { max-width: 100%; padding: 11px; }
   .glyph { display: none; }
+  .title { font-size: clamp(42px, 13.5vw, 64px); }
   .lede { font-size: 15.5px; }
   .cta { gap: 10px; }
   .btn { flex: 1 1 auto; text-align: center; }
 
   .discipline { grid-template-columns: 1fr; gap: 12px; margin-top: 30px; }
+  .pkgs { grid-template-columns: 1fr; }
 
-  section { padding-block: 40px; }
+  section { padding-block: 38px; }
   .section-head { gap: 11px; margin-bottom: 16px; }
-  .section-head h2 { font-size: 33px; }
+  .section-head h2 { font-size: 31px; }
   .section-lede { font-size: 15.5px; margin-bottom: 20px; }
 
   .scenarios { grid-template-columns: 1fr; gap: 12px; }
   .scn { border-radius: 16px; }
-  .scn:hover { transform: none; }
   .scn-title { font-size: 22px; }
 
   .col { padding: 18px; }
@@ -602,10 +616,23 @@ footer code { font-family: var(--mono); color: var(--ink-muted); }
   .tier .lvl { width: 42px; height: 42px; font-size: 23px; }
 
   .repo { padding: 16px; }
-  .repo-cards { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+  .repo-cards { grid-template-columns: repeat(auto-fit, minmax(116px, 1fr)); gap: 10px; }
   .rrow { padding: 10px 12px; }
 
   footer .row { flex-direction: column; gap: 10px; }
+}
+
+/* Very small phones (≤ 360px) — keep the title from crowding the gutter. */
+@media (max-width: 360px) {
+  .repo-cards { grid-template-columns: 1fr; }
+}
+
+/* Touch devices — neutralize hover lifts so they don't stick after a tap. */
+@media (hover: none) {
+  .scn:hover { transform: none; }
+  .scn:hover::before { border-color: var(--ce); filter: url(#deckle) drop-shadow(0 8px 13px rgba(59, 52, 43, 0.15)); }
+  .btn:hover { transform: none; }
+  .btn:hover::before { border-color: var(--edge); filter: url(#deckle) drop-shadow(0 6px 10px rgba(59, 52, 43, 0.14)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
