@@ -13,13 +13,14 @@ trusted kernel; an LLM or rule-based translator is an untrusted proposer.
 
 ## Stack
 
-TypeScript, pnpm workspaces. Packages:
+TypeScript, pnpm workspaces. MIT. Packages (all built):
 
 - `@entailer/core` — pure, zero LLM/solver deps. The trusted kernel.
 - `@entailer/cli` — `entailer` bin; a thin adapter over `core`.
-
-Later (designed, not yet built): `solver` (opt-in Z3), `translate` (the only
-LLM-touching code), `mcp`, `viz`. MIT.
+- `@entailer/mcp` — stdio MCP server; thin tools over `core`.
+- `@entailer/translate` — the only LLM-touching code (prose → IR).
+- `@entailer/viz` — deterministic view-models + renderers.
+- `@entailer/solver` — opt-in Z3/SMT escalation, behind a capability probe.
 
 ## The non-negotiables
 

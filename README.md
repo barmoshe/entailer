@@ -85,22 +85,21 @@ full pipeline, IR schema, tier model, and milestone plan.
 
 ## Status
 
-v0.1 shipped the deterministic core plus a CLI, taking the formalization as supplied
-input, with the IR and source-adapter seam built so the later tiers extend the same
-core instead of re-implementing logic. v0.2 is underway: the MCP server is built
-(deterministic tools over the core); the LLM translator and the Tier-2 prompt adapter
-are next.
+v0.1 shipped the deterministic core plus a CLI. v0.2 and v0.3 added the MCP server,
+the LLM translator, all four tier adapters, and the viz and solver packages, all over
+the one deterministic core. The IR and source-adapter seam is what lets every tier
+extend the same core instead of re-implementing logic.
 
-| Tier | Input | v0.1 |
+| Tier | Input | status |
 |---|---|---|
-| 1 Sentence | one claim | ✅ in scope |
-| 2 Prompt | prose with an implicit conclusion | roadmap (v0.2) |
-| 3 Markdown | one `.md` | roadmap (v0.3) |
-| 4 Repo | a path, cross-file | roadmap (v0.4) |
+| 1 Sentence | one claim | ✅ built |
+| 2 Prompt | prose with an implicit conclusion | ✅ built |
+| 3 Markdown | one `.md` | ✅ built |
+| 4 Repo | a path, cross-file | ✅ built |
 
-The MCP server and the LLM translator are built (v0.2). All four tier adapters
-(sentence, prompt, markdown, repo) exist over the one deterministic core. The
-visualization package is designed for but not built yet.
+The deterministic core takes the formalization as supplied input; the LLM translator
+(`@entailer/translate`) produces it from prose and degrades to `UNKNOWN` when the
+translation is shaky.
 
 ## Packages
 
