@@ -1,0 +1,14 @@
+{
+  "logic": "PROP",
+  "symbols": [
+    { "kind": "atom", "name": "p", "arity": 0, "gloss": "the deploy succeeded", "source": "stated", "spans": [] },
+    { "kind": "atom", "name": "q", "arity": 0, "gloss": "the release is live", "source": "stated", "spans": [] }
+  ],
+  "premises": [
+    { "ast": { "type": "implies", "left": { "type": "atom", "name": "p" }, "right": { "type": "atom", "name": "q" } }, "role": "premise", "source": "stated", "spans": [{ "text": "if the deploy succeeded then the release is live" }] },
+    { "ast": { "type": "atom", "name": "q" }, "role": "premise", "source": "stated", "spans": [{ "text": "the release is live" }] }
+  ],
+  "conclusion": { "ast": { "type": "atom", "name": "p" }, "source": "stated", "spans": [{ "text": "so the deploy succeeded" }] },
+  "outOfScope": [],
+  "translationConfidence": { "band": "high", "score": 0.97, "signals": ["round-trip-stable"] }
+}

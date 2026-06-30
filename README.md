@@ -1,5 +1,9 @@
 # entailer
 
+[![ci](https://github.com/barmoshe/entailer/actions/workflows/ci.yml/badge.svg)](https://github.com/barmoshe/entailer/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@entailer/core.svg)](https://www.npmjs.com/package/@entailer/core)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+
 **A logician's-pass linter for software artifacts.** Entailer checks whether prose
 that argues actually *follows*, and whether a set of requirements is *consistent*,
 by formalizing the load-bearing claims into logic and verifying them
@@ -26,6 +30,29 @@ to be logged, R2 forbids it. Entailer's job is to surface that as an
 a vibe and not a style nag. A cross-file contradiction like this is the thing a
 single-sentence "is this a fallacy" toy structurally cannot produce, and it is
 where Entailer is headed (Tiers 3 and 4 below).
+
+## Quickstart
+
+```sh
+# CLI
+npx @entailer/cli markdown spec.md           # Tier 3: within-doc consistency
+npx @entailer/cli repo .                      # Tier 4: cross-file consistency
+npx @entailer/cli sentence "a -> a"           # Tier 1: classify a claim
+npx @entailer/cli check --ir argument.json    # validity of a supplied argument
+
+# Library
+npm i @entailer/core
+```
+
+```ts
+import { evaluateMarkdown } from "@entailer/core";
+const report = evaluateMarkdown({ markdown, uri: "spec.md" });
+console.log(report.verdict, report.consistency.minimalConflictingSubset);
+```
+
+Exit codes: `0` no issue / valid, `1` invalid or inconsistent, `2` malformed input,
+`3` UNKNOWN-blocked. Runnable demos live in [`examples/`](./examples). The MCP server
+is `npx @entailer/mcp` (declared in `plugin/.mcp.json`).
 
 ## What is honest about it
 
