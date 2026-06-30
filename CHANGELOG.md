@@ -2,9 +2,16 @@
 
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project uses semantic
-versioning. All packages are versioned together during the `0.x` series.
+versioning. All packages are versioned together.
 
 ## [Unreleased]
+
+## [1.0.0] - 2026-06-30
+
+First stable release. The deterministic verifier core's public API and the IR
+schema are now considered stable and follow semantic versioning from here. All
+four tiers (sentence, prompt, markdown, repo) run over the one core; the LLM
+translator stays an untrusted proposer behind the same IR seam.
 
 ### Added
 - **Tiers 2 to 4 wired into the CLI and MCP.** CLI: `entailer prompt --file`,

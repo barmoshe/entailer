@@ -1,6 +1,6 @@
 {
   "name": "@entailer/core",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "The deterministic verifier core for Entailer: Formula AST, IR, propositional tableau + DPLL, classification, and the LogicReport schema. Zero LLM/solver dependencies — the trusted kernel.",
   "license": "MIT",
   "type": "module",

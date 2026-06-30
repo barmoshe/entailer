@@ -1,6 +1,6 @@
 {
   "name": "@entailer/mcp",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "The Entailer MCP server: deterministic check_validity / check_consistency / classify / evaluate tools over @entailer/core, with structured output. Stateless, stdio.",
   "license": "MIT",
   "type": "module",

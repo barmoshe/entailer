@@ -9,8 +9,6 @@ import {
   formulaToString,
   isPropositional,
   parse,
-  type Assignment,
-  type Formula,
   type LogicReport,
 } from "@entailer/core";
 import { truthTableToSvg, truthTableView, verdictBadge } from "@entailer/viz";

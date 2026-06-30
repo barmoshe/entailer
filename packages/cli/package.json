@@ -1,6 +1,6 @@
 {
   "name": "@entailer/cli",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "The Entailer CLI: evaluate a supplied formalization of a sentence or argument and emit an honest LogicReport.",
   "license": "MIT",
   "type": "module",
