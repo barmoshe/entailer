@@ -550,6 +550,10 @@ export function App() {
           <feTurbulence type="fractalNoise" baseFrequency="0.011 0.014" numOctaves="3" seed="9" result="n" />
           <feDisplacementMap in="SourceGraphic" in2="n" scale="8" xChannelSelector="R" yChannelSelector="G" />
         </filter>
+        <filter id="deckle-sm" x="-10%" y="-18%" width="120%" height="136%" colorInterpolationFilters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.022 0.03" numOctaves="3" seed="2" result="n" />
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
       </svg>
 
       <header className="hero">

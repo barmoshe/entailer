@@ -117,7 +117,7 @@ code, .mono { font-family: var(--mono); }
  * tears like watercolor stock. A drop-shadow inside the same filter chain makes
  * the lift follow the torn edge. --ce / --cb let each card set its accent.
  * ================================================================== */
-.discipline div, .scn, .pkg, .cert, .tier, .repo, .rcard {
+.discipline div, .scn, .pkg, .cert, .tier, .repo, .rcard, .stmt, .rrow, .badge, .svgwrap {
   position: relative;
   isolation: isolate;
   background: transparent;
@@ -125,12 +125,12 @@ code, .mono { font-family: var(--mono); }
   --ce: var(--edge);
   --cb: transparent;
 }
-.discipline div > *, .scn > *, .pkg > *, .cert > *, .tier > *, .repo > *, .rcard > * { position: relative; z-index: 1; }
-.discipline div::before, .scn::before, .pkg::before, .cert::before, .tier::before, .repo::before, .rcard::before {
+.discipline div::before, .scn::before, .pkg::before, .cert::before, .tier::before, .repo::before,
+.rcard::before, .stmt::before, .rrow::before, .badge::before, .svgwrap::before {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: -1;
   border-radius: inherit;
   background-color: var(--paper-deep);
   background-image:
@@ -141,6 +141,12 @@ code, .mono { font-family: var(--mono); }
   background-blend-mode: multiply, soft-light, multiply;
   border: 1.4px solid var(--ce);
   filter: url(#deckle) drop-shadow(0 9px 14px rgba(59, 52, 43, 0.16));
+}
+/* small slips + badges tear with a gentler filter so they don't over-distort */
+.stmt::before, .rrow::before, .badge::before, .svgwrap::before {
+  background-color: var(--paper);
+  border-width: 1.2px;
+  filter: url(#deckle-sm) drop-shadow(0 5px 9px rgba(59, 52, 43, 0.12));
 }
 
 /* ---- Hero ---- */
@@ -197,16 +203,40 @@ code, .mono { font-family: var(--mono); }
 .lede b { color: var(--ink); font-weight: 600; }
 .lede i { color: var(--terracotta); font-style: italic; }
 
-/* hero illustration — no hard frame, the paper edge dissolves into the page */
-.hero-art { position: relative; }
+/* hero illustration — a print laid on a torn paper mat; the image's own paper
+   edge feathers into the mat, the mat's outer edge tears like the cards */
+.hero-art {
+  position: relative;
+  isolation: isolate;
+  padding: 16px;
+  border-radius: 15px 19px 14px 18px;
+  --ce: var(--edge);
+  --cb: color-mix(in oklab, var(--ochre) 13%, transparent);
+}
+.hero-art::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background-color: var(--paper-deep);
+  background-image:
+    radial-gradient(120% 150% at 6% 0%, var(--cb), transparent 56%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 56%),
+    var(--tooth);
+  background-size: cover, cover, 220px 220px;
+  background-blend-mode: multiply, soft-light, multiply;
+  border: 1.5px solid var(--ce);
+  filter: url(#deckle-lg) drop-shadow(0 22px 34px rgba(59, 52, 43, 0.18));
+}
 .hero-art img {
   width: 100%;
   height: auto;
   display: block;
-  -webkit-mask-image: radial-gradient(128% 122% at 50% 45%, #000 70%, transparent 100%);
-  mask-image: radial-gradient(128% 122% at 50% 45%, #000 70%, transparent 100%);
+  border-radius: 8px;
+  -webkit-mask-image: radial-gradient(126% 120% at 50% 46%, #000 80%, transparent 100%);
+  mask-image: radial-gradient(126% 120% at 50% 46%, #000 80%, transparent 100%);
   mix-blend-mode: multiply;
-  filter: drop-shadow(0 26px 34px rgba(59, 52, 43, 0.14));
 }
 
 .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
@@ -307,15 +337,26 @@ section { padding: 60px 0; }
   position: relative;
   isolation: isolate;
   border-radius: 22px;
-  overflow: hidden;
-  box-shadow: var(--lift-lg);
+  overflow: visible;
+  filter: drop-shadow(0 20px 38px rgba(59, 52, 43, 0.2));
   background-color: var(--paper-deep);
   background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 60%), var(--tooth);
   background-size: cover, 220px 220px;
   background-blend-mode: soft-light, multiply;
-  border: 1.5px solid var(--edge);
 }
-.canvas { display: grid; grid-template-columns: 1.05fr 0.95fr; }
+/* torn outer edge — a border-only overlay run through the deckle filter, so the
+   panel's paper edge tears without distorting the playground inside it */
+.pg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: inherit;
+  border: 1.6px solid var(--edge);
+  filter: url(#deckle-lg);
+}
+.canvas { display: grid; grid-template-columns: 1.05fr 0.95fr; border-radius: inherit; overflow: hidden; }
 .col { padding: 24px; }
 .col-artifact { border-right: 1px solid var(--line-soft); }
 .col-verdict { background: color-mix(in oklab, var(--wash) 60%, transparent); }
@@ -329,20 +370,15 @@ section { padding: 60px 0; }
   gap: 12px;
   align-items: baseline;
   padding: 11px 13px;
-  border: 1px solid var(--line-soft);
   border-radius: 11px 13px 10px 12px;
-  background-color: var(--paper);
-  background-image: var(--tooth);
-  background-size: 220px 220px;
-  background-blend-mode: multiply;
-  box-shadow: var(--lift);
-  transition: border-color 0.2s, background-color 0.2s;
+  transition: transform 0.2s;
 }
 .stmt .lbl { font-family: var(--mono); font-size: 12px; color: var(--wood); font-weight: 700; }
 .stmt .eng { color: var(--ink); font-size: 15px; line-height: 1.5; }
-.stmt.concl { background-color: var(--raise); }
+.stmt.concl { --cb: color-mix(in oklab, var(--teal) 14%, transparent); }
 .stmt.concl .lbl { color: var(--teal-deep); }
-.stmt.hot { border-color: color-mix(in oklab, var(--terracotta) 65%, var(--line)); background-color: color-mix(in oklab, var(--terracotta) 11%, var(--paper)); }
+.stmt.hot { --ce: color-mix(in oklab, var(--terracotta) 70%, var(--edge)); --cb: color-mix(in oklab, var(--terracotta) 18%, transparent); }
+.stmt.hot::before { background-color: color-mix(in oklab, var(--terracotta) 7%, var(--paper)); }
 .stmt.hot .lbl { color: var(--terracotta); }
 
 /* the disclosure + "how entailer reads it" */
@@ -419,19 +455,19 @@ section { padding: 60px 0; }
   letter-spacing: 0.06em;
   padding: 8px 14px;
   border-radius: 11px 13px 10px 12px;
-  border: 1.4px solid;
   font-size: 13px;
+  color: var(--ink-muted);
 }
-.badge.valid { color: var(--teal-deep); border-color: color-mix(in oklab, var(--teal) 60%, var(--line)); background: color-mix(in oklab, var(--teal) 14%, var(--paper)); }
-.badge.invalid, .badge.inconsistent { color: var(--terracotta); border-color: color-mix(in oklab, var(--terracotta) 60%, var(--line)); background: color-mix(in oklab, var(--terracotta) 13%, var(--paper)); }
-.badge.inconclusive, .badge.unknown { color: #7c6f52; border-color: var(--gold-deep); background: color-mix(in oklab, var(--unknown) 16%, var(--paper)); }
-.badge.neutral { color: var(--ink-muted); border-color: var(--line); background: var(--raise); }
+.badge.valid { color: var(--teal-deep); --ce: color-mix(in oklab, var(--teal) 65%, var(--line)); --cb: color-mix(in oklab, var(--teal) 20%, transparent); }
+.badge.invalid, .badge.inconsistent { color: var(--terracotta); --ce: color-mix(in oklab, var(--terracotta) 65%, var(--line)); --cb: color-mix(in oklab, var(--terracotta) 18%, transparent); }
+.badge.inconclusive, .badge.unknown { color: #7c6f52; --ce: var(--gold-deep); --cb: color-mix(in oklab, var(--unknown) 22%, transparent); }
+.badge.neutral { color: var(--ink-muted); --ce: var(--line); --cb: color-mix(in oklab, var(--wood) 8%, transparent); }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 
 .err { color: var(--terracotta); font-size: 14px; }
 .contract { color: var(--faint); font-size: 12px; line-height: 1.55; border-top: 1px dashed var(--line); margin-top: 18px; padding-top: 12px; }
-.svgwrap { margin-top: 12px; overflow-x: auto; border: 1px solid var(--line-soft); border-radius: 12px; box-shadow: var(--lift); }
-.svgwrap svg { display: block; }
+.svgwrap { margin-top: 12px; padding: 7px; border-radius: 12px 14px 11px 13px; overflow: visible; }
+.svgwrap svg { display: block; border-radius: 6px; }
 
 /* ---- Packages ---- */
 .pkgs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
@@ -500,13 +536,7 @@ section { padding: 60px 0; }
   gap: 10px;
   flex-wrap: wrap;
   padding: 11px 14px;
-  border: 1px solid var(--line-soft);
   border-radius: 11px 13px 10px 12px;
-  background-color: var(--paper);
-  background-image: var(--tooth);
-  background-size: 220px 220px;
-  background-blend-mode: multiply;
-  box-shadow: var(--lift);
   font-size: 13.5px;
 }
 .sev { width: 9px; height: 9px; border-radius: 50%; flex: none; align-self: center; }
@@ -545,7 +575,7 @@ footer code { font-family: var(--mono); color: var(--ink-muted); }
   body { font-size: 16px; }
   .wrap { padding: 0 18px; }
   .hero { padding: 36px 0 18px; }
-  .hero-art { max-width: 100%; }
+  .hero-art { max-width: 100%; padding: 11px; }
   .glyph { display: none; }
   .lede { font-size: 15.5px; }
   .cta { gap: 10px; }
