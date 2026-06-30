@@ -146,5 +146,11 @@ export {
   extractDoc,
 } from "./adapters/markdown.js";
 
+export {
+  type RepoInput,
+  type RepoFile,
+  evaluateRepo,
+} from "./adapters/repo.js";
+
 // ---- Taxonomy (machine-consumable; seeded, codegen pending) ---------------
 export * from "./taxonomy.js";
