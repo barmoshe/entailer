@@ -9,9 +9,9 @@
     "node": ">=20.19"
   },
   "scripts": {
-    "build": "pnpm -r run build",
-    "test": "pnpm -r run test",
-    "typecheck": "pnpm -r run typecheck",
+    "build": "pnpm --filter \"./packages/*\" run build",
+    "test": "pnpm --filter \"./packages/*\" run test",
+    "typecheck": "pnpm --filter \"./packages/*\" run typecheck",
     "gen": "node scripts/gen-taxonomy.mjs && pnpm --filter @entailer/core run gen:schema",
     "gen:check": "pnpm run gen && git diff --exit-code -- packages/core/src/generated packages/core/schema",
     "vendor:skill": "node scripts/vendor-skill.mjs",
