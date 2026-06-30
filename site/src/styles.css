@@ -51,14 +51,51 @@ body {
   font-size: 16.5px;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
-  /* soft watercolor blobs + a faint paper grain (feTurbulence) */
+  /* The painted page: a low-frequency cloud (uneven pigment density, blended
+     soft-light) under overlapping watercolor washes (multiply, so where two
+     pools meet the color deepens like real pigment). The paper *tooth* and
+     *grain* are added as fixed overlays in ::before / ::after below. */
+  background-color: var(--paper);
   background-image:
-    radial-gradient(58rem 42rem at 10% -10%, color-mix(in oklab, var(--sage) 42%, transparent), transparent 60%),
-    radial-gradient(50rem 40rem at 96% 2%, color-mix(in oklab, var(--ochre) 34%, transparent), transparent 56%),
-    radial-gradient(48rem 44rem at 86% 84%, color-mix(in oklab, var(--teal) 20%, transparent), transparent 60%),
-    radial-gradient(40rem 38rem at 4% 92%, color-mix(in oklab, var(--wood) 16%, transparent), transparent 60%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
-  background-attachment: fixed, fixed, fixed, fixed, fixed;
+    radial-gradient(62rem 46rem at 8% -12%, color-mix(in oklab, var(--sage) 48%, transparent), transparent 62%),
+    radial-gradient(54rem 42rem at 98% 0%, color-mix(in oklab, var(--ochre) 40%, transparent), transparent 58%),
+    radial-gradient(50rem 48rem at 88% 82%, color-mix(in oklab, var(--teal) 26%, transparent), transparent 60%),
+    radial-gradient(44rem 40rem at 2% 94%, color-mix(in oklab, var(--wood) 20%, transparent), transparent 60%),
+    radial-gradient(26rem 22rem at 64% 30%, color-mix(in oklab, var(--ochre) 22%, transparent), transparent 58%),
+    radial-gradient(22rem 26rem at 30% 64%, color-mix(in oklab, var(--sage) 26%, transparent), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='620' height='620'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.011' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='620' height='620' filter='url(%23c)' opacity='0.5'/%3E%3C/svg%3E");
+  background-size: cover, cover, cover, cover, cover, cover, 620px 620px;
+  background-blend-mode: multiply, multiply, multiply, multiply, multiply, multiply, soft-light;
+  background-attachment: fixed;
+}
+
+/* Paper tooth — feTurbulence relief lit by a distant light, multiplied over the
+   washes so the cream reads as physical cold-press paper, not a flat fill.
+   Baked into a data-URI SVG: the filter rasterizes once, then tiles (cheap). */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.42;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.045' numOctaves='5' stitchTiles='stitch' result='n'/%3E%3CfeDiffuseLighting in='n' lighting-color='%23ffffff' surfaceScale='1.6' diffuseConstant='1.05'%3E%3CfeDistantLight azimuth='45' elevation='58'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23p)'/%3E%3C/svg%3E");
+  background-size: 300px 300px;
+}
+
+/* Fine paper grain — a faint high-frequency speckle, soft-light so it lifts and
+   settles the surface without graying the warmth. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
 }
 
 a { color: var(--teal-deep); text-decoration: none; }
