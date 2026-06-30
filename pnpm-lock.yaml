@@ -89,6 +89,19 @@ importers:
         specifier: '>=0.40'
         version: 0.107.0(zod@3.25.76)
 
+  packages/viz:
+    dependencies:
+      '@entailer/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@26.0.1)
+
 packages:
 
   '@anthropic-ai/sdk@0.107.0':
