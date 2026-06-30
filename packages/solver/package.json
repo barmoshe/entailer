@@ -1,0 +1,43 @@
+{
+  "name": "@entailer/solver",
+  "version": "0.1.0",
+  "description": "Opt-in SMT escalation for Entailer. A pure SMT-LIB emitter plus a lazily-probed Z3 backend that degrades to UNKNOWN when z3-solver is absent — an amplifier, never a gate.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "pnpm run build"
+  },
+  "dependencies": {
+    "@entailer/core": "workspace:*"
+  },
+  "optionalDependencies": {
+    "z3-solver": ">=4.12"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/barmoshe/entailer.git",
+    "directory": "packages/solver"
+  },
+  "homepage": "https://github.com/barmoshe/entailer#readme",
+  "publishConfig": {
+    "access": "public"
+  }
+}
