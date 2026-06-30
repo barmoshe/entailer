@@ -1,0 +1,15 @@
+{
+  "name": "entailer — does it follow?",
+  "short_name": "entailer",
+  "description": "A logician's-pass linter for software artifacts. Validity and consistency, judged deterministically and separately from truth.",
+  "start_url": "/entailer/",
+  "scope": "/entailer/",
+  "display": "standalone",
+  "background_color": "#f3ead6",
+  "theme_color": "#f3ead6",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

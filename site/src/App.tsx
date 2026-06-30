@@ -557,10 +557,18 @@ export function App() {
       </svg>
 
       <header className="hero">
-        <div className="glyph" aria-hidden>⊨</div>
+        <img className="glyph" src={`${import.meta.env.BASE_URL}logo.webp`} alt="" aria-hidden="true" />
         <div className="wrap">
           <div className="hero-grid">
             <div className="hero-copy">
+              <img
+                className="brandmark"
+                src={`${import.meta.env.BASE_URL}logo.webp`}
+                width={56}
+                height={56}
+                alt=""
+                aria-hidden="true"
+              />
               <div className="eyebrow">does it follow?</div>
               <h1 className="title">
                 entail<em>er</em>
@@ -693,7 +701,10 @@ export function App() {
 
       <footer>
         <div className="wrap row">
-          <span>entailer — MIT licensed. The engine on this page is the published <code>@entailer/core</code>, running client-side.</span>
+          <span className="foot-brand">
+            <img className="foot-logo" src={`${import.meta.env.BASE_URL}logo.webp`} width={26} height={26} alt="" aria-hidden="true" />
+            entailer — MIT licensed. The engine on this page is the published <code>@entailer/core</code>, running client-side.
+          </span>
           <span>
             <a href="https://github.com/barmoshe/entailer">source</a> ·{" "}
             <a href="https://github.com/barmoshe/entailer/blob/main/DESIGN.md">design</a>
