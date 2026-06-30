@@ -618,21 +618,51 @@ footer code { font-family: var(--mono); color: var(--ink-muted); }
   .section-head h2 { font-size: 31px; }
   .section-lede { font-size: 15.5px; margin-bottom: 20px; }
 
-  .scenarios { grid-template-columns: 1fr; gap: 12px; }
-  .scn { border-radius: 16px; }
-  .scn-title { font-size: 22px; }
+  /* Section 01 — scenario picker becomes a swipeable, edge-to-edge carousel
+     (no more scrolling past five full-width cards to reach the playground) */
+  .scenarios {
+    display: flex;
+    grid-template-columns: none;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin-inline: -18px;
+    padding: 4px 18px 12px;
+  }
+  .scenarios::-webkit-scrollbar { display: none; }
+  .scn { flex: 0 0 81%; scroll-snap-align: center; border-radius: 16px; }
+  .scn-title { font-size: 21px; }
 
   .col { padding: 18px; }
   .pg { border-radius: 18px; }
 
+  .tiers { gap: 11px; }
   .tier { grid-template-columns: 44px 1fr; gap: 14px; padding: 16px 17px; }
   .tier .lvl { width: 42px; height: 42px; font-size: 23px; }
 
+  /* Section 02 — repo map: status chips two-up, each finding on two lines
+     (the file pair, then the contradiction underneath) */
   .repo { padding: 16px; }
-  .repo-cards { grid-template-columns: repeat(auto-fit, minmax(116px, 1fr)); gap: 10px; }
-  .rrow { padding: 10px 12px; }
+  .repo-cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .rcard { padding: 14px 10px; }
+  .rrow { padding: 11px 13px; flex-wrap: wrap; align-items: center; row-gap: 3px; }
+  .rsep { display: none; }
+  .rwhere { font-size: 12px; }
+  .rwhy { flex-basis: 100%; font-size: 13px; }
 
-  footer .row { flex-direction: column; gap: 10px; }
+  /* Section 04 — packages: compact stacked cards */
+  .pkgs { gap: 12px; }
+  .pkg { padding: 15px 16px; border-radius: 14px; }
+  .pkg code { font-size: 13.5px; }
+  .pkg p { font-size: 13px; margin-top: 6px; }
+
+  /* discipline: tighter principle cards */
+  .discipline div { padding: 15px 16px; }
+  .discipline p { font-size: 13.5px; }
+
+  footer .row { flex-direction: column; align-items: flex-start; gap: 10px; }
 }
 
 /* Very small phones (≤ 360px) — keep the title from crowding the gutter. */
