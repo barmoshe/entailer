@@ -628,11 +628,12 @@ footer code { font-family: var(--mono); color: var(--ink-muted); }
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    scroll-padding-left: 18px;
     margin-inline: -18px;
     padding: 4px 18px 12px;
   }
   .scenarios::-webkit-scrollbar { display: none; }
-  .scn { flex: 0 0 81%; scroll-snap-align: center; border-radius: 16px; }
+  .scn { flex: 0 0 81%; scroll-snap-align: start; border-radius: 16px; }
   .scn-title { font-size: 21px; }
 
   .col { padding: 18px; }
@@ -676,6 +677,26 @@ footer code { font-family: var(--mono); color: var(--ink-muted); }
   .scn:hover::before { border-color: var(--ce); filter: url(#deckle) drop-shadow(0 8px 13px rgba(59, 52, 43, 0.15)); }
   .btn:hover { transform: none; }
   .btn:hover::before { border-color: var(--edge); filter: url(#deckle) drop-shadow(0 6px 10px rgba(59, 52, 43, 0.14)); }
+}
+
+/* Performance — feDisplacementMap filters and fixed backgrounds are smooth on a
+   desktop GPU but thrash on touch/small screens (every scroll frame repaints the
+   fixed texture and re-runs every card's filter). On touch / narrow viewports we
+   drop the per-element deckle filters (clean borders + a soft shadow instead) and
+   stop the fixed-background repaints. Desktop keeps the full torn-paper treatment. */
+@media (max-width: 900px), (hover: none) {
+  body { background-attachment: scroll; position: relative; }
+  body::before, body::after { position: absolute; }
+
+  .discipline div::before, .scn::before, .pkg::before, .cert::before, .tier::before,
+  .repo::before, .rcard::before, .stmt::before, .rrow::before, .badge::before,
+  .svgwrap::before, .hero-art::before, .btn::before,
+  .scn:hover::before, .btn:hover::before {
+    filter: none;
+    box-shadow: var(--lift);
+  }
+  .pg { filter: none; box-shadow: var(--lift-lg); }
+  .pg::after { filter: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
