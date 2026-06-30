@@ -30,12 +30,19 @@ const assignmentSchema = z.record(z.string(), z.boolean());
 
 const symbolEntrySchema = z.object({ symbol: z.string(), gloss: z.string() });
 
+/** A source location — `path:line` provenance, used from Tier 3 up. */
+const locationSchema = z.object({
+  uri: z.string().optional(),
+  line: z.number().int().nonnegative().optional(),
+});
+
 const formalizationEntrySchema = z.object({
   id: z.string(),
   english: z.string(),
   formal: z.string(),
   role: z.enum(["premise", "premise-supplied", "conclusion"]),
   logicSystem: z.string(),
+  source: locationSchema.optional(),
   translationConfidence: z
     .object({ band: z.enum(["low", "med", "high"]), score: z.number().min(0).max(1) })
     .optional(),
@@ -77,6 +84,15 @@ const findingSchema = z.object({
   name: z.string(),
   signature: z.string(),
   why: z.string(),
+  location: locationSchema.nullable().optional(),
+});
+
+/** Tier-4 file-selection manifest entry (which docs were checked, and why). */
+const selectionManifestEntrySchema = z.object({
+  uri: z.string(),
+  included: z.boolean(),
+  role: z.string(),
+  reason: z.string(),
 });
 
 export const logicReportSchema = z
@@ -91,6 +107,8 @@ export const logicReportSchema = z
     flattened: z.array(flattenedSchema).default([]),
     verdictConfidence: z.object({ band: z.enum(["high", "low"]), reason: z.string() }),
     findings: z.array(findingSchema).default([]),
+    selectionManifest: z.array(selectionManifestEntrySchema).optional(),
+    coverageCaveat: z.string().optional(),
     translationConfidence: z
       .object({ band: z.enum(["low", "med", "high"]), score: z.number().min(0).max(1) })
       .optional(),
@@ -153,6 +171,8 @@ export interface BuildReportInput {
   soundnessRisk?: { note: string }[];
   flattened?: z.input<typeof flattenedSchema>[];
   findings?: z.input<typeof findingSchema>[];
+  selectionManifest?: z.input<typeof selectionManifestEntrySchema>[];
+  coverageCaveat?: string;
   translationConfidence?: { band: "low" | "med" | "high"; score: number };
   verdictConfidence?: { band: "high" | "low"; reason: string };
   honestyContract?: string;
@@ -189,6 +209,8 @@ export function buildReport(input: BuildReportInput): LogicReport {
     flattened: input.flattened ?? [],
     verdictConfidence,
     findings: input.findings ?? [],
+    ...(input.selectionManifest ? { selectionManifest: input.selectionManifest } : {}),
+    ...(input.coverageCaveat ? { coverageCaveat: input.coverageCaveat } : {}),
     translationConfidence: input.translationConfidence,
     honestyContract: input.honestyContract ?? HONESTY_CONTRACT,
   });
@@ -223,7 +245,10 @@ export function toMarkdown(report: LogicReport): string {
       const conf = f.translationConfidence
         ? ` _(confidence: ${f.translationConfidence.band})_`
         : "";
-      lines.push(`- **${f.role}** [${f.logicSystem}]: \`${f.formal}\`${conf}`);
+      const loc = f.source?.line !== undefined
+        ? ` _(${f.source.uri ? `${f.source.uri}:` : "line "}${f.source.line})_`
+        : "";
+      lines.push(`- **${f.role}** [${f.logicSystem}]: \`${f.formal}\`${conf}${loc}`);
       lines.push(`  - English: ${f.english}`);
     }
   }
@@ -261,10 +286,25 @@ export function toMarkdown(report: LogicReport): string {
     for (const f of report.flattened) lines.push(`- _${f.kind}_: ${f.text}`);
   }
 
+  if (report.selectionManifest && report.selectionManifest.length > 0) {
+    lines.push("\n## Selection manifest");
+    for (const m of report.selectionManifest) {
+      lines.push(`- ${m.included ? "✓" : "✗"} \`${m.uri}\` (${m.role}) — ${m.reason}`);
+    }
+  }
+
+  if (report.coverageCaveat) {
+    lines.push("\n## Coverage caveat");
+    lines.push(`- ${report.coverageCaveat}`);
+  }
+
   if (report.findings.length > 0) {
     lines.push("\n## Findings");
     for (const f of report.findings) {
-      lines.push(`- **${f.severity}** ${f.name} — ${f.why} (${f.signature})`);
+      const loc = f.location?.line !== undefined
+        ? ` [${f.location.uri ? `${f.location.uri}:` : "line "}${f.location.line}]`
+        : "";
+      lines.push(`- **${f.severity}** ${f.name}${loc} — ${f.why} (${f.signature})`);
     }
   }
 

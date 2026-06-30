@@ -138,5 +138,13 @@ export {
   recoverConclusionIndex,
 } from "./adapters/prompt.js";
 
+export {
+  type MarkdownInput,
+  type ExtractedDoc,
+  type ExtractedClaim,
+  evaluateMarkdown,
+  extractDoc,
+} from "./adapters/markdown.js";
+
 // ---- Taxonomy (machine-consumable; seeded, codegen pending) ---------------
 export * from "./taxonomy.js";
