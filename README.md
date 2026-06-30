@@ -71,8 +71,9 @@ are next.
 | 3 Markdown | one `.md` | roadmap (v0.3) |
 | 4 Repo | a path, cross-file | roadmap (v0.4) |
 
-The MCP server is built (v0.2). The LLM translator and the visualization package are
-designed for but not built yet.
+The MCP server and the LLM translator are built (v0.2). All four tier adapters
+(sentence, prompt, markdown, repo) exist over the one deterministic core. The
+visualization package is designed for but not built yet.
 
 ## Packages
 
@@ -81,6 +82,7 @@ designed for but not built yet.
 | `@entailer/core` | The trusted kernel: Formula AST, DSL parser, propositional tableau + DPLL, classification, the IR, and the `LogicReport` schema. Pure, dependency-light. |
 | `@entailer/cli` | `entailer` binary: evaluate a supplied formalization, `--json` output, honest exit codes including a distinct `UNKNOWN`-blocked code. |
 | `@entailer/mcp` | Stdio MCP server exposing deterministic tools (`check_validity`, `check_consistency`, `classify_formula`, `evaluate_sentence`, `evaluate_argument`) with structured output. The default path is one-call: the caller formalizes in-context, then calls these tools. |
+| `@entailer/translate` | The LLM seam (the *only* package that touches a model). Turns prose into the typed IR via Claude, then the deterministic core verifies it. A parse failure or undeclared atom forces the confidence band low, so the core returns `UNKNOWN` rather than a confident-but-wrong verdict. The formalizer is injectable, so the engine is fully testable offline. |
 
 ## Develop
 
