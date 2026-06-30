@@ -15,6 +15,9 @@ import {
   checkValidity,
   classify,
   evaluateArgument,
+  evaluateMarkdown,
+  evaluatePrompt,
+  evaluateRepo,
   evaluateSentence,
   parse,
   parseFormalizedArgument,
@@ -184,5 +187,80 @@ export function runEvaluateArgument(args: { ir: Record<string, unknown> }): Tool
     };
   } catch (e) {
     return fail(`invalid IR: ${e instanceof Error ? e.message : String(e)}`);
+  }
+}
+
+// ---- evaluate_prompt (Tier 2) ---------------------------------------------
+
+export const evaluatePromptInput = {
+  claims: z
+    .array(
+      z.object({
+        dsl: z.string(),
+        text: z.string().optional(),
+        supplied: z.boolean().optional(),
+        line: z.number().int().optional(),
+      }),
+    )
+    .describe("the prompt's claims as logic-DSL strings (+ surface text for conclusion recovery)"),
+  symbols: z.array(z.object({ symbol: z.string(), gloss: z.string() })),
+  conclusionIndex: z.number().int().optional().describe("force which claim is the conclusion"),
+};
+
+export function runEvaluatePrompt(args: {
+  claims: { dsl: string; text?: string; supplied?: boolean; line?: number }[];
+  symbols: { symbol: string; gloss: string }[];
+  conclusionIndex?: number;
+}): ToolOutcome {
+  try {
+    const report = evaluatePrompt(args);
+    return {
+      content: text(toMarkdown(report)),
+      structuredContent: { verdict: report.verdict, report, markdown: toMarkdown(report) },
+    };
+  } catch (e) {
+    if (e instanceof ParseError) return fail(`parse error: ${e.message}`);
+    return fail(`invalid prompt: ${e instanceof Error ? e.message : String(e)}`);
+  }
+}
+
+// ---- evaluate_markdown (Tier 3) -------------------------------------------
+
+export const evaluateMarkdownInput = {
+  markdown: z.string().describe("the markdown document body"),
+  uri: z.string().optional().describe("the document path, for path:line findings"),
+};
+
+export function runEvaluateMarkdown(args: { markdown: string; uri?: string }): ToolOutcome {
+  try {
+    const report = evaluateMarkdown(args);
+    return {
+      content: text(toMarkdown(report)),
+      structuredContent: { verdict: report.verdict, report, markdown: toMarkdown(report) },
+    };
+  } catch (e) {
+    if (e instanceof ParseError) return fail(`parse error: ${e.message}`);
+    return fail(`invalid markdown: ${e instanceof Error ? e.message : String(e)}`);
+  }
+}
+
+// ---- evaluate_repo (Tier 4) -----------------------------------------------
+
+export const evaluateRepoInput = {
+  files: z
+    .array(z.object({ uri: z.string(), content: z.string() }))
+    .describe("the repo's files (the caller reads the filesystem; core stays FS-free)"),
+};
+
+export function runEvaluateRepo(args: { files: { uri: string; content: string }[] }): ToolOutcome {
+  try {
+    const report = evaluateRepo({ files: args.files });
+    return {
+      content: text(toMarkdown(report)),
+      structuredContent: { verdict: report.verdict, report, markdown: toMarkdown(report) },
+    };
+  } catch (e) {
+    if (e instanceof ParseError) return fail(`parse error: ${e.message}`);
+    return fail(`invalid repo input: ${e instanceof Error ? e.message : String(e)}`);
   }
 }

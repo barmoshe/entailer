@@ -3,14 +3,20 @@
  * a process. `run` is pure: it returns the exit code + the text to print, and
  * never calls `process.exit` itself.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
+import { join, relative } from "node:path";
 import {
   ParseError,
   evaluateArgument,
+  evaluateMarkdown,
+  evaluatePrompt,
+  evaluateRepo,
   evaluateSentence,
   parseFormalizedArgument,
   toMarkdown,
   type LogicReport,
+  type PromptInput,
+  type RepoFile,
   type Verdict,
 } from "@entailer/core";
 
@@ -26,6 +32,9 @@ Usage:
   entailer sentence "<dsl>"        classify a single claim (tautology/contingent/contradiction)
   entailer sentence --ir <file>    classify the claim in a supplied IR JSON file
   entailer check --ir <file>       check validity + consistency of a supplied argument IR
+  entailer prompt --file <file>    Tier 2: evaluate a PromptInput JSON (claims + symbols)
+  entailer markdown <file.md>      Tier 3: check a markdown doc's fenced \`entailer\` claims
+  entailer repo <dir>              Tier 4: cross-file consistency over a repo's markdown docs
 
 Options:
   --json                           print the LogicReport as JSON
@@ -71,6 +80,26 @@ function loadIR(path: string): ReturnType<typeof parseFormalizedArgument> {
   return parseFormalizedArgument(raw);
 }
 
+const MARKDOWN_RE = /\.(md|markdown)$/i;
+
+/** Recursively collect markdown files under a directory (skips dot/node_modules dirs). */
+function collectMarkdown(root: string): RepoFile[] {
+  const out: RepoFile[] = [];
+  const walk = (dir: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name === "node_modules" || entry.name.startsWith(".")) continue;
+        walk(full);
+      } else if (MARKDOWN_RE.test(entry.name)) {
+        out.push({ uri: relative(root, full), content: readFileSync(full, "utf8") });
+      }
+    }
+  };
+  walk(root);
+  return out;
+}
+
 export function run(argv: string[]): CliResult {
   if (argv.length === 0 || argv.includes("-h") || argv.includes("--help")) {
     return { code: 0, stdout: USAGE };
@@ -96,6 +125,29 @@ export function run(argv: string[]): CliResult {
       const irPath = flagValue(rest, "--ir");
       if (!irPath) return { code: 2, stdout: "", stderr: "check: --ir <file> is required" };
       const report = evaluateArgument(loadIR(irPath));
+      return { code: exitCodeFor(report.verdict), stdout: render(report, rest) };
+    }
+
+    if (command === "prompt") {
+      const path = flagValue(rest, "--file");
+      if (!path) return { code: 2, stdout: "", stderr: "prompt: --file <prompt.json> is required" };
+      const input = JSON.parse(readFileSync(path, "utf8")) as PromptInput;
+      const report = evaluatePrompt(input);
+      return { code: exitCodeFor(report.verdict), stdout: render(report, rest) };
+    }
+
+    if (command === "markdown") {
+      const path = rest.find((a) => !a.startsWith("-"));
+      if (!path) return { code: 2, stdout: "", stderr: "markdown: missing <file.md>" };
+      const report = evaluateMarkdown({ markdown: readFileSync(path, "utf8"), uri: path });
+      return { code: exitCodeFor(report.verdict), stdout: render(report, rest) };
+    }
+
+    if (command === "repo") {
+      const dir = rest.find((a) => !a.startsWith("-"));
+      if (!dir) return { code: 2, stdout: "", stderr: "repo: missing <dir>" };
+      const files = collectMarkdown(dir);
+      const report = evaluateRepo({ files });
       return { code: exitCodeFor(report.verdict), stdout: render(report, rest) };
     }
 

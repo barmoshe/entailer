@@ -12,12 +12,18 @@ import {
   classifyInput,
   classifyOutput,
   evaluateArgumentInput,
+  evaluateMarkdownInput,
   evaluateOutput,
+  evaluatePromptInput,
+  evaluateRepoInput,
   evaluateSentenceInput,
   runCheckConsistency,
   runCheckValidity,
   runClassify,
   runEvaluateArgument,
+  runEvaluateMarkdown,
+  runEvaluatePrompt,
+  runEvaluateRepo,
   runEvaluateSentence,
 } from "./tools.js";
 
@@ -88,6 +94,45 @@ export function createServer(): McpServer {
       outputSchema: evaluateOutput,
     },
     (args) => runEvaluateArgument(args),
+  );
+
+  server.registerTool(
+    "evaluate_prompt",
+    {
+      title: "Evaluate a prompt (Tier 2)",
+      description:
+        "Evaluate a prompt's claims: recover the conclusion from indicator words, treat flagged " +
+        "enthymemes as premise-supplied, and check argument validity (or consistency if no conclusion).",
+      inputSchema: evaluatePromptInput,
+      outputSchema: evaluateOutput,
+    },
+    (args) => runEvaluatePrompt(args),
+  );
+
+  server.registerTool(
+    "evaluate_markdown",
+    {
+      title: "Evaluate a markdown doc (Tier 3)",
+      description:
+        "Check within-doc consistency of a markdown document's fenced `entailer` claim blocks, " +
+        "reporting the minimal conflicting subset back to path:line.",
+      inputSchema: evaluateMarkdownInput,
+      outputSchema: evaluateOutput,
+    },
+    (args) => runEvaluateMarkdown(args),
+  );
+
+  server.registerTool(
+    "evaluate_repo",
+    {
+      title: "Evaluate a repo (Tier 4)",
+      description:
+        "Cross-file consistency over a set of markdown docs (the caller supplies file contents; " +
+        "the core stays filesystem-free). Returns a selection manifest and a coverage caveat.",
+      inputSchema: evaluateRepoInput,
+      outputSchema: evaluateOutput,
+    },
+    (args) => runEvaluateRepo(args),
   );
 
   return server;

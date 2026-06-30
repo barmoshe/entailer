@@ -4,6 +4,9 @@ import {
   runCheckValidity,
   runClassify,
   runEvaluateArgument,
+  runEvaluateMarkdown,
+  runEvaluatePrompt,
+  runEvaluateRepo,
   runEvaluateSentence,
 } from "./tools.js";
 
@@ -83,5 +86,43 @@ describe("evaluate_argument", () => {
   it("rejects an IR with no symbol dictionary", () => {
     const r = runEvaluateArgument({ ir: { logic: "PROP", symbols: [], premises: [], translationConfidence: { band: "high", score: 1, signals: [] } } });
     expect(r.isError).toBe(true);
+  });
+});
+
+describe("evaluate_prompt (Tier 2)", () => {
+  it("recovers the conclusion and validates", () => {
+    const r = runEvaluatePrompt({
+      claims: [
+        { dsl: "p", text: "it succeeded" },
+        { dsl: "p -> q", text: "if it succeeded it's live" },
+        { dsl: "q", text: "therefore it's live" },
+      ],
+      symbols: [
+        { symbol: "p", gloss: "ok" },
+        { symbol: "q", gloss: "live" },
+      ],
+    });
+    expect(r.structuredContent?.verdict).toBe("VALID");
+  });
+});
+
+describe("evaluate_markdown (Tier 3)", () => {
+  it("flags a within-doc inconsistency", () => {
+    const md =
+      "```entailer\nlet req=r\nlet logged=l\nlet health=h\nreq -> logged\nhealth -> ~logged\nhealth & req\n```";
+    const r = runEvaluateMarkdown({ markdown: md, uri: "policy.md" });
+    expect(r.structuredContent?.verdict).toBe("INCONSISTENT");
+  });
+});
+
+describe("evaluate_repo (Tier 4)", () => {
+  it("catches a cross-file contradiction", () => {
+    const r = runEvaluateRepo({
+      files: [
+        { uri: "README.md", content: "```entailer\nlet req=r\nlet logged=l\nreq -> logged\n```" },
+        { uri: "SPEC.md", content: "```entailer\nlet health=h\nhealth -> ~logged\nhealth & req\n```" },
+      ],
+    });
+    expect(r.structuredContent?.verdict).toBe("INCONSISTENT");
   });
 });
