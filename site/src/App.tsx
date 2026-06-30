@@ -150,6 +150,17 @@ function glossFor(glosses: Gloss[], symbol: string): string {
   return glosses.find((g) => g.symbol === symbol)?.gloss ?? `“${symbol}” (no gloss supplied)`;
 }
 
+/* Recolor the viz truth-table SVG (which ships fixed dark/slate hexes) to the
+ * watercolor palette — purely presentational, the engine + view-model are
+ * untouched. Falsifying rows stay tinted, now in terracotta. */
+function recolorTruthTable(svg: string): string {
+  return svg
+    .replaceAll("#1f2937", "#37535c") // header band → teal-deep
+    .replaceAll("#ffffff", "#f7f0df") // satisfying rows → cream paper
+    .replaceAll("#fee2e2", "#ecd5c7") // falsifying rows → soft terracotta wash
+    .replaceAll("#e5e7eb", "#d8c6a2"); // cell strokes → warm line
+}
+
 function analyzeSpec(s: Scenario): Analysis {
   const formulas = s.statements.map((st) => parse(st.dsl));
   const cons = checkConsistency(formulas);
@@ -237,7 +248,7 @@ function analyzeClaim(s: Scenario): Analysis {
   const vacuous = report.validity.vacuous || k.kind === "vacuous";
   const tt =
     isPropositional(formula) && report.symbolDictionary.length <= 4
-      ? truthTableToSvg(truthTableView(formula))
+      ? recolorTruthTable(truthTableToSvg(truthTableView(formula)))
       : null;
   const map: Record<string, { badge: Badge; label: string; summary: string }> = {
     tautology: { badge: "neutral", label: "TAUTOLOGY", summary: "True under every assignment — it rules nothing out, so it carries no information." },
@@ -530,23 +541,35 @@ export function App() {
       <header className="hero">
         <div className="glyph" aria-hidden>⊨</div>
         <div className="wrap">
-          <div className="eyebrow">does it follow?</div>
-          <h1 className="title">
-            entail<em>er</em>
-          </h1>
-          <p className="tagline">a logician's-pass linter for software artifacts.</p>
-          <p className="lede">
-            A linter for <i>style</i> cannot catch a spec that quietly contradicts itself, or an
-            argument that sounds airtight but doesn't follow. Entailer formalizes the load-bearing
-            claims in your prose into logic and checks them deterministically. It reports{" "}
-            <b>validity</b> and <b>consistency</b> separately from <b>truth</b>, and never ships a
-            verdict without showing the formalization it judged. Pick a real artifact below — the
-            engine runs in your browser.
-          </p>
-          <div className="cta">
-            <a className="btn primary" href="#playground">See it catch a bug</a>
-            <a className="btn" href="https://github.com/barmoshe/entailer">GitHub</a>
-            <a className="btn" href="https://www.npmjs.com/package/@entailer/core">npm</a>
+          <div className="hero-grid">
+            <div className="hero-copy">
+              <div className="eyebrow">does it follow?</div>
+              <h1 className="title">
+                entail<em>er</em>
+              </h1>
+              <p className="tagline">a logician's-pass linter for software artifacts.</p>
+              <p className="lede">
+                A linter for <i>style</i> cannot catch a spec that quietly contradicts itself, or an
+                argument that sounds airtight but doesn't follow. Entailer formalizes the load-bearing
+                claims in your prose into logic and checks them deterministically. It reports{" "}
+                <b>validity</b> and <b>consistency</b> separately from <b>truth</b>, and never ships a
+                verdict without showing the formalization it judged. Pick a real artifact below — the
+                engine runs in your browser.
+              </p>
+              <div className="cta">
+                <a className="btn primary" href="#playground">See it catch a bug</a>
+                <a className="btn" href="https://github.com/barmoshe/entailer">GitHub</a>
+                <a className="btn" href="https://www.npmjs.com/package/@entailer/core">npm</a>
+              </div>
+            </div>
+            <div className="hero-art">
+              <img
+                src={`${import.meta.env.BASE_URL}owl-verdict.webp`}
+                width={800}
+                height={1000}
+                alt="A spectacled owl judge in a teal coat inspects a nervous stack of code files (README.md, main.py, utils.js) in an 'awesome-repo' box through a magnifying glass, about to stamp a VALID certificate with a wax seal, the entails symbol glowing above."
+              />
+            </div>
           </div>
 
           <div className="discipline">
