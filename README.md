@@ -88,9 +88,10 @@ full pipeline, IR schema, tier model, and milestone plan.
 ## Status
 
 v0.1 shipped the deterministic core plus a CLI. v0.2 and v0.3 added the MCP server,
-the LLM translator, all four tier adapters, and the viz and solver packages, all over
-the one deterministic core. The IR and source-adapter seam is what lets every tier
-extend the same core instead of re-implementing logic.
+the LLM translator, the tier adapters, and the viz and solver packages; 1.1.0 added
+the Tier-5 pull-request evaluator. All five tiers run over the one deterministic core.
+The IR and source-adapter seam is what lets every tier extend the same core instead of
+re-implementing logic.
 
 | Tier | Input | status |
 |---|---|---|
@@ -98,6 +99,7 @@ extend the same core instead of re-implementing logic.
 | 2 Prompt | prose with an implicit conclusion | ✅ built |
 | 3 Markdown | one `.md` | ✅ built |
 | 4 Repo | a path, cross-file | ✅ built |
+| 5 PR | base + head file sets (+ PR body) | ✅ built — base→head delta / regression gate |
 
 The deterministic core takes the formalization as supplied input; the LLM translator
 (`@entailer/translate`) produces it from prose and degrades to `UNKNOWN` when the
@@ -109,7 +111,7 @@ translation is shaky.
 |---|---|
 | `@entailer/core` | The trusted kernel: Formula AST, DSL parser, propositional tableau + DPLL, classification, the IR, and the `LogicReport` schema. Pure, dependency-light. |
 | `@entailer/cli` | `entailer` binary: evaluate a supplied formalization, `--json` output, honest exit codes including a distinct `UNKNOWN`-blocked code. |
-| `@entailer/mcp` | Stdio MCP server exposing deterministic tools (`check_validity`, `check_consistency`, `classify_formula`, `evaluate_sentence`, `evaluate_argument`) with structured output. The default path is one-call: the caller formalizes in-context, then calls these tools. |
+| `@entailer/mcp` | Stdio MCP server exposing deterministic tools (`check_validity`, `check_consistency`, `classify_formula`, `evaluate_sentence`, `evaluate_argument`, `evaluate_prompt`, `evaluate_markdown`, `evaluate_repo`, `evaluate_pull_request`) with structured output. The default path is one-call: the caller formalizes in-context, then calls these tools. |
 | `@entailer/translate` | The LLM seam (the *only* package that touches a model). Turns prose into the typed IR via Claude, then the deterministic core verifies it. A parse failure or undeclared atom forces the confidence band low, so the core returns `UNKNOWN` rather than a confident-but-wrong verdict. The formalizer is injectable, so the engine is fully testable offline. |
 
 ## Develop

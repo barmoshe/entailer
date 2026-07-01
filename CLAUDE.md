@@ -7,9 +7,9 @@ Agent guide for the `entailer` repository. This is the standalone open-source re
 ## What it is
 
 An open-source TypeScript toolkit that evaluates the logical soundness of text
-artifacts (sentence → prompt → markdown → repo): an npm library, a Claude plugin,
-an MCP server, and visualization tools. The deterministic verifier core is the
-trusted kernel; an LLM or rule-based translator is an untrusted proposer.
+artifacts (sentence → prompt → markdown → repo → pr): an npm library, Claude + Codex
+plugins, an MCP server, and visualization tools. The deterministic verifier core is
+the trusted kernel; an LLM or rule-based translator is an untrusted proposer.
 
 ## Stack
 
