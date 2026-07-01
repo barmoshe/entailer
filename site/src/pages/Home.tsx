@@ -3,6 +3,7 @@ import { Link } from "../router.js";
 import { SCENARIOS } from "../data/scenarios.js";
 import { OwnView } from "../components/OwnView.js";
 import { PrDemo } from "../components/PrDemo.js";
+import { DomainDemo } from "../components/DomainDemo.js";
 import { RepoReport } from "../components/RepoReport.js";
 import { ScenarioView } from "../components/ScenarioView.js";
 
@@ -155,9 +156,30 @@ export function Home({ anchor }: { anchor?: string | null }) {
         </p>
       </section>
 
-      <section className="wrap">
+      <section id="lens" className="wrap">
         <div className="section-head">
           <span className="n">04</span>
+          <h2>The concept-faithfulness lens</h2>
+        </div>
+        <p className="section-lede">
+          A different axis from the five tiers: not "does the logic hold?" but{" "}
+          <em>does the code stay faithful to its own concepts?</em> You declare a small cluster —{" "}
+          <code>member</code>, <code>guest</code>, <code>user</code> — on its four sides
+          (relationships, rule, examples, vocabulary). The lens flags where one identifier fuses two
+          concepts you declared mutually exclusive. Only a <b>rank-1</b> contradiction is a verdict;
+          a legitimate <code>is-a</code> overlap stays silent. This runs the real engine in your browser:
+        </p>
+        <DomainDemo />
+        <p className="repo-caveat">
+          Live <code>evaluateDomain</code> from <code>@entailer/core</code>. Classification is lexical —
+          the irreducible weak link — so a human confirms each site; ranks 2–3 are reader hints, never a
+          blocking claim. Not a tier: a distinct axis on the same honest core.
+        </p>
+      </section>
+
+      <section className="wrap">
+        <div className="section-head">
+          <span className="n">05</span>
           <h2>Five tiers, one core</h2>
         </div>
         <div className="tiers">
@@ -171,7 +193,7 @@ export function Home({ anchor }: { anchor?: string | null }) {
 
       <section className="wrap">
         <div className="section-head">
-          <span className="n">05</span>
+          <span className="n">06</span>
           <h2>Packages</h2>
         </div>
         <div className="pkgs">
