@@ -17,6 +17,7 @@ import {
   evaluate,
   formulaToString,
   type Assignment,
+  type DomainReport,
   type Formula,
   type LogicReport,
   type ProofTree,
@@ -210,5 +211,68 @@ export function claimGraphToMermaid(view: ClaimGraphView): string {
     if (n.inConflict) lines.push(`  class ${n.id} conflict;`);
   }
   lines.push("  classDef conflict fill:#fee2e2,stroke:#dc2626;");
+  return lines.join("\n");
+}
+
+// ---- DomainMapView (concept-faithfulness lens) ----------------------------
+
+/**
+ * The lens badge, certificate-gated like {@link verdictBadge}: `leak` only for a
+ * deterministic rank-1 verdict, `clean` only when nothing surfaced, and
+ * `inconclusive` when only reader hints exist — a hint can never light up as
+ * clean *or* leak.
+ */
+export type DomainBadge = "leak" | "clean" | "inconclusive";
+
+export function domainBadge(report: DomainReport): DomainBadge {
+  if (report.findings.some((f) => f.rank === "rank-1")) return "leak";
+  if (report.findings.length > 0) return "inconclusive"; // hints only — a human must read
+  return report.noLeakFound ? "clean" : "inconclusive";
+}
+
+export interface DomainMapNode {
+  readonly id: string;
+  readonly label: string;
+  readonly uri?: string;
+  readonly line?: number;
+  readonly rank: "rank-1" | "rank-2" | "rank-3";
+}
+export interface DomainMapView {
+  readonly cluster: string;
+  readonly badge: DomainBadge;
+  readonly nodes: DomainMapNode[];
+}
+
+/** One node per finding; rank-1 verdicts flagged apart from rank-2/3 hints. */
+export function domainMapView(report: DomainReport): DomainMapView {
+  const nodes = report.findings.map((f, i) => {
+    const first = f.receipts[0];
+    const node: DomainMapNode = {
+      id: `f${i}`,
+      label: `${f.name} [${f.concepts.join("×")}]`,
+      ...(first?.uri !== undefined ? { uri: first.uri } : {}),
+      ...(first?.line !== undefined ? { line: first.line } : {}),
+      rank: f.rank,
+    };
+    return node;
+  });
+  return { cluster: report.cluster, badge: domainBadge(report), nodes };
+}
+
+/**
+ * Render the map as Mermaid. Rank-1 verdicts reuse the solid red `conflict`
+ * class; hints get a distinct dashed `hint` class so a picture never launders a
+ * hint into a verdict.
+ */
+export function domainMapToMermaid(view: DomainMapView): string {
+  const lines = ["graph LR"];
+  for (const n of view.nodes) {
+    const loc = n.uri ? `<br/>${n.uri}${n.line !== undefined ? `:${n.line}` : ""}` : "";
+    const safe = `${n.label}${loc}`.replace(/"/g, "'");
+    lines.push(`  ${n.id}["${safe}"]`);
+    lines.push(`  class ${n.id} ${n.rank === "rank-1" ? "conflict" : "hint"};`);
+  }
+  lines.push("  classDef conflict fill:#fee2e2,stroke:#dc2626;");
+  lines.push("  classDef hint fill:#fef9c3,stroke:#ca8a04,stroke-dasharray: 4 2;");
   return lines.join("\n");
 }

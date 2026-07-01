@@ -4,6 +4,7 @@ import {
   runCheckValidity,
   runClassify,
   runEvaluateArgument,
+  runEvaluateDomain,
   runEvaluateMarkdown,
   runEvaluatePr,
   runEvaluatePrompt,
@@ -151,5 +152,36 @@ describe("evaluate_pull_request (Tier 5)", () => {
       gate: "introduced",
     });
     expect(r.structuredContent?.verdict).toBe("NO_ISSUE_FOUND");
+  });
+});
+
+describe("evaluate_domain (concept-faithfulness lens)", () => {
+  const spec = {
+    cluster: "access",
+    boundary: ["src/**"],
+    concepts: [{ concept: "member" }, { concept: "guest" }],
+    relationships: ["member is-not guest"],
+  };
+
+  it("returns LEAK on a concept-fusion identifier", () => {
+    const r = runEvaluateDomain({
+      spec,
+      files: [{ uri: "src/a.ts", content: "function deleteMemberGuest(id) { return id; }" }],
+    });
+    expect(r.structuredContent?.verdict).toBe("LEAK");
+    expect(r.isError).toBeUndefined();
+  });
+
+  it("returns NO_LEAK_FOUND when the concepts stay separate", () => {
+    const r = runEvaluateDomain({
+      spec,
+      files: [{ uri: "src/a.ts", content: "const member = 1;\nconst guest = 2;" }],
+    });
+    expect(r.structuredContent?.verdict).toBe("NO_LEAK_FOUND");
+  });
+
+  it("errors on a malformed declaration", () => {
+    const r = runEvaluateDomain({ spec: { cluster: "x" }, files: [] });
+    expect(r.isError).toBe(true);
   });
 });

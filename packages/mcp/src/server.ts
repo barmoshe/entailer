@@ -12,6 +12,8 @@ import {
   classifyInput,
   classifyOutput,
   evaluateArgumentInput,
+  evaluateDomainInput,
+  evaluateDomainOutput,
   evaluateMarkdownInput,
   evaluateOutput,
   evaluatePrInput,
@@ -22,6 +24,7 @@ import {
   runCheckValidity,
   runClassify,
   runEvaluateArgument,
+  runEvaluateDomain,
   runEvaluateMarkdown,
   runEvaluatePr,
   runEvaluatePrompt,
@@ -150,6 +153,22 @@ export function createServer(): McpServer {
       outputSchema: evaluateOutput,
     },
     (args) => runEvaluatePr(args),
+  );
+
+  server.registerTool(
+    "evaluate_domain",
+    {
+      title: "Evaluate concept faithfulness (domain lens)",
+      description:
+        "Check a codebase against a declared concept cluster (member/user/guest, etc.). Only a " +
+        "rank-1 finding is a verdict — one identifier fusing two declared-disjoint concepts, or a " +
+        "self-contradictory declaration; ranks 2–3 are reader hints that assert nothing. Supply the " +
+        "cluster declaration and file contents (core stays FS-free). `gate=introduced` + `base` " +
+        "reports only leaks new vs the base.",
+      inputSchema: evaluateDomainInput,
+      outputSchema: evaluateDomainOutput,
+    },
+    (args) => runEvaluateDomain(args),
   );
 
   return server;

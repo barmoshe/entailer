@@ -1,17 +1,22 @@
 import { describe, expect, it } from "vitest";
 import {
   evaluateArgument,
+  evaluateDomain,
   evaluateMarkdown,
   evaluateSentence,
   parse,
   refute,
   not,
+  parseDomainSpec,
   type FormalizedArgument,
 } from "@entailer/core";
 import {
   claimGraphToMermaid,
   claimGraphView,
   counterModelToText,
+  domainBadge,
+  domainMapToMermaid,
+  domainMapView,
   tableauToMermaid,
   tableauToText,
   truthTableToSvg,
@@ -19,6 +24,33 @@ import {
   truthTableView,
   verdictBadge,
 } from "./index.js";
+
+describe("domainMapView / domainBadge (concept lens)", () => {
+  const spec = parseDomainSpec({
+    cluster: "access",
+    boundary: ["src/**"],
+    concepts: [{ concept: "member" }, { concept: "guest" }],
+    relationships: ["member is-not guest"],
+  });
+
+  it("badges a rank-1 leak and marks its node conflict, not hint", () => {
+    const report = evaluateDomain({ spec, files: [{ uri: "src/a.ts", content: "fn deleteMemberGuest() {}" }] });
+    expect(domainBadge(report)).toBe("leak");
+    const mm = domainMapToMermaid(domainMapView(report));
+    expect(mm).toContain("conflict");
+    expect(mm).toContain("classDef hint");
+  });
+
+  it("badges a clean scan and stays inconclusive when only hints exist", () => {
+    const clean = evaluateDomain({ spec, files: [{ uri: "src/a.ts", content: "const member = 1;" }] });
+    expect(domainBadge(clean)).toBe("clean");
+    const hints = evaluateDomain({
+      spec,
+      files: [{ uri: "src/a.ts", content: "member; guest;\nmember, guest;\nmember || guest;" }],
+    });
+    expect(domainBadge(hints)).toBe("inconclusive");
+  });
+});
 
 describe("truthTableView", () => {
   it("enumerates 2^n rows and marks falsifying rows", () => {

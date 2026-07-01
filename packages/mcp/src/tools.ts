@@ -11,19 +11,25 @@
 import { z } from "zod";
 import {
   ParseError,
+  buildDomainReport,
   checkConsistency,
   checkValidity,
   classify,
+  domainToMarkdown,
+  domainVerdict,
   evaluateArgument,
+  evaluateDomain,
   evaluateMarkdown,
   evaluatePr,
   evaluatePrompt,
   evaluateRepo,
   evaluateSentence,
   parse,
+  parseDomainSpec,
   parseFormalizedArgument,
   toMarkdown,
   verdictSchema,
+  type DomainFinding,
   type Formula,
 } from "@entailer/core";
 
@@ -303,5 +309,66 @@ export function runEvaluatePr(args: {
   } catch (e) {
     if (e instanceof ParseError) return fail(`parse error: ${e.message}`);
     return fail(`invalid PR input: ${e instanceof Error ? e.message : String(e)}`);
+  }
+}
+
+// ---- evaluate_domain (concept-faithfulness lens) --------------------------
+
+const domainFileSchema = z.object({ uri: z.string(), content: z.string() });
+
+export const evaluateDomainInput = {
+  spec: z
+    .record(z.string(), z.unknown())
+    .describe("a concept-cluster declaration (DomainSpec: cluster, concepts[four sides], relationships, boundary)"),
+  files: z.array(domainFileSchema).describe("the head files to scan (caller reads the FS; core stays FS-free)"),
+  base: z.array(domainFileSchema).optional().describe("base files, only used when gate='introduced'"),
+  gate: z.enum(["head", "introduced"]).optional().describe("head reports all leaks; introduced only leaks new vs base"),
+};
+export const evaluateDomainOutput = {
+  verdict: z.enum(["LEAK", "NO_LEAK_FOUND", "HINTS_ONLY"]),
+  report: z.record(z.string(), z.unknown()).describe("the full DomainReport"),
+  markdown: z.string(),
+};
+
+function domainFindingKey(f: DomainFinding): string {
+  const notes = f.receipts.map((r) => r.note ?? "").sort().join(",");
+  return `${f.evidenceType}|${[...f.concepts].sort().join("+")}|${notes}`;
+}
+
+export function runEvaluateDomain(args: {
+  spec: Record<string, unknown>;
+  files: { uri: string; content: string }[];
+  base?: { uri: string; content: string }[];
+  gate?: "head" | "introduced";
+}): ToolOutcome {
+  try {
+    const spec = parseDomainSpec(args.spec);
+    const introduced = args.gate === "introduced" && args.base && args.base.length > 0;
+    const mode = introduced || (args.base && args.base.length > 0) ? "pr" : "repo";
+    const headReport = evaluateDomain({ files: args.files, spec, mode });
+
+    let report = headReport;
+    if (introduced) {
+      const baseReport = evaluateDomain({ files: args.base!, spec, mode: "pr" });
+      const baseVerdicts = new Set(
+        baseReport.findings.filter((f) => f.rank === "rank-1").map(domainFindingKey),
+      );
+      const kept = headReport.findings.filter(
+        (f) => f.rank !== "rank-1" || !baseVerdicts.has(domainFindingKey(f)),
+      );
+      report = buildDomainReport({
+        cluster: headReport.cluster,
+        mode: headReport.mode,
+        findings: kept,
+        symbolDictionary: headReport.symbolDictionary,
+        selectionManifest: headReport.selectionManifest,
+        coverageCaveat: headReport.coverageCaveat,
+      });
+    }
+
+    const md = domainToMarkdown(report);
+    return { content: text(md), structuredContent: { verdict: domainVerdict(report), report, markdown: md } };
+  } catch (e) {
+    return fail(`invalid domain input: ${e instanceof Error ? e.message : String(e)}`);
   }
 }
