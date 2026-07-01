@@ -6,6 +6,25 @@ versioning. All packages are versioned together.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-07-01
+
+### Added
+- **Tier 5 — pull-request evaluator (`evaluatePr`).** A base→head **delta /
+  regression gate**: cross-file consistency of the base claim-set vs the head
+  claim-set, attributing each contradiction as introduced / fixed / pre-existing
+  (exact per-claim, via stable `uri:dsl` identity), and folding the PR
+  description's fenced `entailer` claims into the head. Two knobs: `gate`
+  (`head` default, or `introduced` to fail only on newly-introduced contradictions)
+  and `descriptionSeverity` (`fail` | `warn` | `off`). A new optional `delta` field
+  on `LogicReport` carries the machine-readable regression result; `target.tier`
+  now admits `5`. Honest by contract: an inconsistent-but-not-regressed head PASSES
+  under `gate=introduced` (`NO_ISSUE_FOUND` with `consistency.status: UNSAT` + a
+  mandatory note), never a silent clean pass.
+  - CLI: `entailer pr <number|url>` (via `gh` + git), `entailer pr --base <ref>`
+    (local git), `entailer pr --base-dir <d> --head-dir <d>` (offline), with
+    `--gate` / `--description` flags.
+  - MCP: `evaluate_pull_request` tool.
+
 ## [1.0.0] - 2026-06-30
 
 First stable release. The deterministic verifier core's public API and the IR

@@ -69,3 +69,41 @@ describe("repo command (Tier 4)", () => {
     expect(files.size).toBeGreaterThan(1);
   });
 });
+
+describe("pr command (Tier 5)", () => {
+  const specSat = "# SPEC\n\n```entailer\nlet a = auth required\nlet pub = public\na -> ~pub\n```\n";
+  const conflict = "# Feature\n\n```entailer\na\npub\n```\n";
+
+  function baseHeadDirs(headExtra?: { name: string; body: string }): { base: string; head: string } {
+    const base = tmp();
+    const head = tmp();
+    writeFileSync(join(base, "SPEC.md"), specSat);
+    writeFileSync(join(head, "SPEC.md"), specSat);
+    if (headExtra) writeFileSync(join(head, headExtra.name), headExtra.body);
+    return { base, head };
+  }
+
+  it("flags a PR that introduces a contradiction (exit 1), delta reports it", () => {
+    const { base, head } = baseHeadDirs({ name: "FEATURE.md", body: conflict });
+    const r = run(["pr", "--base-dir", base, "--head-dir", head, "--json"]);
+    expect(r.code).toBe(1);
+    const report = JSON.parse(r.stdout);
+    expect(report.target.tier).toBe(5);
+    expect(report.verdict).toBe("INCONSISTENT");
+    expect(report.delta.introduced).toBeGreaterThan(0);
+    expect(report.delta.gate).toBe("head");
+  });
+
+  it("a clean PR passes (exit 0)", () => {
+    const { base, head } = baseHeadDirs();
+    const r = run(["pr", "--base-dir", base, "--head-dir", head, "--gate", "introduced", "--json"]);
+    expect(r.code).toBe(0);
+    expect(JSON.parse(r.stdout).verdict).toBe("NO_ISSUE_FOUND");
+  });
+
+  it("rejects a bad --gate value as malformed input", () => {
+    const { base, head } = baseHeadDirs();
+    const r = run(["pr", "--base-dir", base, "--head-dir", head, "--gate", "nope"]);
+    expect(r.code).toBe(2);
+  });
+});

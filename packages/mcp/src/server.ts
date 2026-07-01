@@ -14,6 +14,7 @@ import {
   evaluateArgumentInput,
   evaluateMarkdownInput,
   evaluateOutput,
+  evaluatePrInput,
   evaluatePromptInput,
   evaluateRepoInput,
   evaluateSentenceInput,
@@ -22,6 +23,7 @@ import {
   runClassify,
   runEvaluateArgument,
   runEvaluateMarkdown,
+  runEvaluatePr,
   runEvaluatePrompt,
   runEvaluateRepo,
   runEvaluateSentence,
@@ -133,6 +135,21 @@ export function createServer(): McpServer {
       outputSchema: evaluateOutput,
     },
     (args) => runEvaluateRepo(args),
+  );
+
+  server.registerTool(
+    "evaluate_pull_request",
+    {
+      title: "Evaluate a pull request (Tier 5)",
+      description:
+        "Base→head delta over a PR: cross-file consistency of the base claim-set vs the head " +
+        "claim-set, reporting what the PR introduced / fixed and folding the PR description's " +
+        "`entailer` claims into the head. `gate` drives the verdict (head | introduced); " +
+        "`descriptionSeverity` governs the folded description (fail | warn | off).",
+      inputSchema: evaluatePrInput,
+      outputSchema: evaluateOutput,
+    },
+    (args) => runEvaluatePr(args),
   );
 
   return server;

@@ -95,9 +95,27 @@ const selectionManifestEntrySchema = z.object({
   reason: z.string(),
 });
 
+/**
+ * Tier-5 (PR) delta: the base→head regression view. `introduced`/`fixed`/
+ * `preExisting` are exact per-claim counts (entailer's claims have stable
+ * identity, so we name precisely which contradictions are new, unlike the
+ * count-based CI baselines). `gate` records which policy drove the verdict:
+ * `head` fails on any head inconsistency; `introduced` fails only on a
+ * contradiction whose minimal conflicting subset includes a new/changed claim.
+ */
+const deltaSchema = z.object({
+  base: z.enum(["SAT", "UNSAT", "UNKNOWN"]),
+  head: z.enum(["SAT", "UNSAT", "UNKNOWN"]),
+  introduced: z.number().int().nonnegative(),
+  fixed: z.number().int().nonnegative(),
+  preExisting: z.number().int().nonnegative(),
+  introducedSubset: z.array(z.number().int()).optional(),
+  gate: z.enum(["head", "introduced"]),
+});
+
 export const logicReportSchema = z
   .object({
-    target: z.object({ tier: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]), uri: z.string().optional() }),
+    target: z.object({ tier: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]), uri: z.string().optional() }),
     verdict: verdictSchema,
     validity: validitySchema,
     consistency: consistencySchema,
@@ -109,6 +127,7 @@ export const logicReportSchema = z
     findings: z.array(findingSchema).default([]),
     selectionManifest: z.array(selectionManifestEntrySchema).optional(),
     coverageCaveat: z.string().optional(),
+    delta: deltaSchema.optional(),
     translationConfidence: z
       .object({ band: z.enum(["low", "med", "high"]), score: z.number().min(0).max(1) })
       .optional(),
@@ -162,7 +181,7 @@ export type LogicReport = z.infer<typeof logicReportSchema>;
 // ---- Assembly -------------------------------------------------------------
 
 export interface BuildReportInput {
-  target: { tier: 1 | 2 | 3 | 4; uri?: string };
+  target: { tier: 1 | 2 | 3 | 4 | 5; uri?: string };
   verdict: Verdict;
   validity: z.input<typeof validitySchema>;
   consistency: z.input<typeof consistencySchema>;
@@ -173,6 +192,7 @@ export interface BuildReportInput {
   findings?: z.input<typeof findingSchema>[];
   selectionManifest?: z.input<typeof selectionManifestEntrySchema>[];
   coverageCaveat?: string;
+  delta?: z.input<typeof deltaSchema>;
   translationConfidence?: { band: "low" | "med" | "high"; score: number };
   verdictConfidence?: { band: "high" | "low"; reason: string };
   honestyContract?: string;
@@ -211,6 +231,7 @@ export function buildReport(input: BuildReportInput): LogicReport {
     findings: input.findings ?? [],
     ...(input.selectionManifest ? { selectionManifest: input.selectionManifest } : {}),
     ...(input.coverageCaveat ? { coverageCaveat: input.coverageCaveat } : {}),
+    ...(input.delta ? { delta: input.delta } : {}),
     translationConfidence: input.translationConfidence,
     honestyContract: input.honestyContract ?? HONESTY_CONTRACT,
   });
@@ -274,6 +295,23 @@ export function toMarkdown(report: LogicReport): string {
     lines.push("- status: **SAT** — `noContradictionFound` (not a proof of consistency)");
   } else {
     lines.push("- status: **UNKNOWN**");
+  }
+
+  if (report.delta) {
+    const d = report.delta;
+    lines.push("\n## Delta (base → head)");
+    lines.push(`- base: **${d.base}** · head: **${d.head}** · gate: \`${d.gate}\``);
+    lines.push(
+      `- introduced: **${d.introduced}** · fixed: **${d.fixed}** · pre-existing: **${d.preExisting}**`,
+    );
+    if (d.introducedSubset && d.introducedSubset.length > 0) {
+      lines.push(`- newly-introduced conflicting claims: [${d.introducedSubset.join(", ")}]`);
+    }
+    if (d.head === "UNSAT" && d.introduced === 0) {
+      lines.push(
+        `- ⚠️ the head still carries ${d.preExisting} pre-existing contradiction(s); this PR introduced none.`,
+      );
+    }
   }
 
   if (report.soundnessRisk.length > 0) {

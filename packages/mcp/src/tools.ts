@@ -16,6 +16,7 @@ import {
   classify,
   evaluateArgument,
   evaluateMarkdown,
+  evaluatePr,
   evaluatePrompt,
   evaluateRepo,
   evaluateSentence,
@@ -262,5 +263,45 @@ export function runEvaluateRepo(args: { files: { uri: string; content: string }[
   } catch (e) {
     if (e instanceof ParseError) return fail(`parse error: ${e.message}`);
     return fail(`invalid repo input: ${e instanceof Error ? e.message : String(e)}`);
+  }
+}
+
+// ---- evaluate_pull_request (Tier 5) ---------------------------------------
+
+const prFileSchema = z.object({ uri: z.string(), content: z.string() });
+
+export const evaluatePrInput = {
+  base: z.array(prFileSchema).describe("the base branch's files (the caller fetches; core stays FS-free)"),
+  head: z.array(prFileSchema).describe("the head (PR) branch's files"),
+  metadata: z
+    .object({
+      number: z.number().int().optional(),
+      url: z.string().optional(),
+      title: z.string().optional(),
+      body: z.string().optional().describe("the PR description; its fenced `entailer` blocks fold into the head"),
+      baseRef: z.string().optional(),
+      headRef: z.string().optional(),
+    })
+    .optional(),
+  gate: z.enum(["head", "introduced"]).optional().describe("exit-code policy; default 'head'"),
+  descriptionSeverity: z.enum(["fail", "warn", "off"]).optional().describe("how to treat the folded PR-description claims; default 'fail'"),
+};
+
+export function runEvaluatePr(args: {
+  base: { uri: string; content: string }[];
+  head: { uri: string; content: string }[];
+  metadata?: { number?: number; url?: string; title?: string; body?: string; baseRef?: string; headRef?: string };
+  gate?: "head" | "introduced";
+  descriptionSeverity?: "fail" | "warn" | "off";
+}): ToolOutcome {
+  try {
+    const report = evaluatePr(args);
+    return {
+      content: text(toMarkdown(report)),
+      structuredContent: { verdict: report.verdict, report, markdown: toMarkdown(report) },
+    };
+  } catch (e) {
+    if (e instanceof ParseError) return fail(`parse error: ${e.message}`);
+    return fail(`invalid PR input: ${e instanceof Error ? e.message : String(e)}`);
   }
 }

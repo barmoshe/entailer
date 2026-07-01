@@ -5,6 +5,7 @@ import {
   runClassify,
   runEvaluateArgument,
   runEvaluateMarkdown,
+  runEvaluatePr,
   runEvaluatePrompt,
   runEvaluateRepo,
   runEvaluateSentence,
@@ -124,5 +125,31 @@ describe("evaluate_repo (Tier 4)", () => {
       ],
     });
     expect(r.structuredContent?.verdict).toBe("INCONSISTENT");
+  });
+});
+
+describe("evaluate_pull_request (Tier 5)", () => {
+  const spec = "```entailer\nlet a=auth\nlet pub=public\na -> ~pub\n```";
+  it("flags a PR that introduces a cross-file contradiction", () => {
+    const r = runEvaluatePr({
+      base: [{ uri: "SPEC.md", content: spec }],
+      head: [
+        { uri: "SPEC.md", content: spec },
+        { uri: "FEATURE.md", content: "```entailer\na\npub\n```" },
+      ],
+    });
+    expect(r.structuredContent?.verdict).toBe("INCONSISTENT");
+    const report = r.structuredContent?.report as { delta?: { introduced: number } };
+    expect(report.delta?.introduced).toBeGreaterThan(0);
+  });
+
+  it("passes a pre-existing-only inconsistency under gate=introduced", () => {
+    const dirty = "```entailer\nlet a=auth\nlet pub=public\na\npub\na -> ~pub\n```";
+    const r = runEvaluatePr({
+      base: [{ uri: "SPEC.md", content: dirty }],
+      head: [{ uri: "SPEC.md", content: dirty }],
+      gate: "introduced",
+    });
+    expect(r.structuredContent?.verdict).toBe("NO_ISSUE_FOUND");
   });
 });

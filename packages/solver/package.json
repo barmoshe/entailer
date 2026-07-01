@@ -1,6 +1,6 @@
 {
   "name": "@entailer/solver",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Opt-in SMT escalation for Entailer. A pure SMT-LIB emitter plus a lazily-probed Z3 backend that degrades to UNKNOWN when z3-solver is absent — an amplifier, never a gate.",
   "license": "MIT",
   "type": "module",

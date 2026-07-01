@@ -117,6 +117,24 @@ One canonical pipeline; a **tier is a `SourceAdapter: (raw) => ClaimSet`** over 
 | **2 Prompt** | prose w/ implicit conclusion | conclusion recovery (indicator words → else LLM nominates + flags `inferred`) + enthymeme `[supplied]` recovery + argument validity | within-prompt | none |
 | **3 Markdown** | one `.md` | mdast extraction (remark-parse + unist-util-visit), drop `code`/`inlineCode`, heading-stack sectionPath, `position.start.line` → spans | within-doc | none |
 | **4 Repo** | a path | **file selection** (load-bearing prose) + per-file Tier-3 + cross-file scope | within + across clusters | none |
+| **5 PR** | base + head file sets (+ PR body) | **base→head delta**: cross-file consistency of both states, attributes each contradiction as introduced / fixed / pre-existing, folds the PR-description claims into the head; a configurable `gate` (head \| introduced) drives the exit code | head, vs a base baseline | none |
+
+**Tier 5 (PR) — the regression-gate view.** A PR is not "another repo": the
+differentiated check is a **delta**, established by prior art (SonarQube "Clean as
+You Code" applies only new-code conditions to PRs; ESLint bulk-suppressions /
+eslint-baseline / reviewdog all fail only on *newly-introduced* issues). Entailer
+computes the base claim-set vs the head claim-set and reports what the PR
+introduced / fixed on top of the head's absolute consistency, plus folds the PR
+description's fenced `entailer` claims into the head ("the PR says X but the code
+contradicts X"). Two knobs: `gate` (`head` = fail on any head inconsistency, the
+default; `introduced` = fail only when a new/changed claim participates in the
+minimal conflicting subset) and `descriptionSeverity` (`fail` | `warn` | `off`).
+**Honesty:** a head that is still inconsistent but not *regressed* is a legitimate
+PASS under `gate=introduced` — the verdict is `NO_ISSUE_FOUND` while
+`consistency.status` stays `UNSAT`, and a mandatory note + the `delta` field state
+"the head carries N pre-existing contradiction(s); this PR introduced none." Unlike
+the count-based CI baselines, entailer's claims have stable identity (`uri:dsl`), so
+attribution is **exact per-claim**, not an approximation.
 
 **Shared source-adapter model.** The engine never knows which tier it serves; only chunking, conclusion-recovery, and consistency *scope* differ. Logic strength is **independent of tier** — right-size per claim (a Tier-1 sentence may need FOL; a Tier-4 requirement may be pure propositional).
 

@@ -154,7 +154,7 @@ export function Home({ anchor }: { anchor?: string | null }) {
         </div>
         <div className="pkgs">
           <div className="pkg"><code>@entailer/core</code><p>The trusted kernel: AST, parser, DPLL + tableau, verify API, IR, and the honesty-checked LogicReport. Pure TypeScript.</p></div>
-          <div className="pkg"><code>@entailer/cli</code><p>The <code>entailer</code> binary: sentence / check / prompt / markdown / repo, with honest exit codes.</p></div>
+          <div className="pkg"><code>@entailer/cli</code><p>The <code>entailer</code> binary: sentence / check / prompt / markdown / repo / pr, with honest exit codes.</p></div>
           <div className="pkg"><code>@entailer/mcp</code><p>A stdio MCP server exposing the deterministic check / evaluate tools with structured output.</p></div>
           <div className="pkg"><code>@entailer/translate</code><p>The only LLM-touching package: prose to a validated IR, degrading to UNKNOWN on a shaky translation.</p></div>
           <div className="pkg"><code>@entailer/viz</code><p>Deterministic view-models and renderers (text, SVG, Mermaid) — the ones powering this page.</p></div>

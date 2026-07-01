@@ -1,6 +1,6 @@
 {
   "name": "@entailer/translate",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "The Entailer LLM translator: prose -> typed IR via Claude structured outputs. The ONLY LLM-touching package; the deterministic core consumes its output.",
   "license": "MIT",
   "type": "module",

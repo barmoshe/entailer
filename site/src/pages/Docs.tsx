@@ -10,7 +10,7 @@ const TOC: { id: string; label: string }[] = [
   { id: "cli", label: "CLI" },
   { id: "library", label: "Library API" },
   { id: "mcp", label: "MCP server" },
-  { id: "tiers", label: "The four tiers" },
+  { id: "tiers", label: "The five tiers" },
   { id: "ir", label: "IR & the honesty contract" },
 ];
 
@@ -64,6 +64,8 @@ entailer check --ir argument.json   # validity of a supplied argument (IR)
 entailer prompt --file arg.txt      # Tier 2: recover the conclusion, then check
 entailer markdown spec.md           # Tier 3: within-doc consistency
 entailer repo .                     # Tier 4: cross-file consistency
+entailer pr 42                      # Tier 5: base→head delta over PR #42 (gh + git)
+entailer pr --base main             # Tier 5: working tree vs a local git ref
 
 # add --json to any command for structured output`}</Code>
         <p className="section-lede" style={{ marginBottom: 8 }}>Honest exit codes let CI gate on logic:</p>
@@ -113,7 +115,7 @@ classify(parse("p | ~p"));   // -> { kind: "tautology" }`}</Code>
               <tr><td><code>classify(f)</code></td><td>tautology / contradiction / contingent</td></tr>
               <tr><td><code>refute(fs)</code></td><td>the raw tableau: <code>{`{closed, tree}`}</code> or <code>{`{closed:false, model}`}</code></td></tr>
               <tr><td><code>evaluate / isSat / isValid / firstCounterModel</code></td><td>the truth-table oracle (exhaustive, the trust anchor)</td></tr>
-              <tr><td><code>evaluateSentence / evaluateArgument / evaluatePrompt / evaluateMarkdown / evaluateRepo</code></td><td>the tier adapters — each returns a full <code>LogicReport</code></td></tr>
+              <tr><td><code>evaluateSentence / evaluateArgument / evaluatePrompt / evaluateMarkdown / evaluateRepo / evaluatePr</code></td><td>the tier adapters — each returns a full <code>LogicReport</code></td></tr>
               <tr><td><code>toMarkdown(report)</code></td><td>render a <code>LogicReport</code> as human-readable Markdown</td></tr>
             </tbody>
           </table>
@@ -145,6 +147,7 @@ classify(parse("p | ~p"));   // -> { kind: "tautology" }`}</Code>
               <tr><td><code>evaluate_prompt</code></td><td>Tier 2 — recover the conclusion, then check</td></tr>
               <tr><td><code>evaluate_markdown</code></td><td>Tier 3 — within-doc consistency</td></tr>
               <tr><td><code>evaluate_repo</code></td><td>Tier 4 — cross-file consistency</td></tr>
+              <tr><td><code>evaluate_pull_request</code></td><td>Tier 5 — base→head delta / regression gate</td></tr>
             </tbody>
           </table>
         </div>
@@ -152,7 +155,7 @@ classify(parse("p | ~p"));   // -> { kind: "tautology" }`}</Code>
       </section>
 
       <section id="tiers" className="doc-section">
-        <div className="section-head"><span className="n">05</span><h2>The four tiers</h2></div>
+        <div className="section-head"><span className="n">05</span><h2>The five tiers</h2></div>
         <p className="section-lede">
           Every tier feeds the <em>same</em> deterministic kernel; a tier differs only in how it chunks the
           input, whether it must recover an implicit conclusion, and the scope over which it checks
@@ -163,6 +166,7 @@ classify(parse("p | ~p"));   // -> { kind: "tautology" }`}</Code>
           <div className="tier"><span className="lvl">2</span><p><b>Prompt / argument.</b> Recover the conclusion from indicator words ("therefore", "thus"), fill enthymemes where honest, then check whether the argument follows.</p></div>
           <div className="tier"><span className="lvl">3</span><p><b>Markdown.</b> Extract claims from fenced blocks in one <code>.md</code>, check within-document consistency, and report findings back to <code>path:line</code>.</p></div>
           <div className="tier"><span className="lvl">4</span><p><b>Repo.</b> Select load-bearing docs across a tree, canonicalize predicates, and surface a minimal conflicting set whose claims span different files.</p></div>
+          <div className="tier"><span className="lvl">5</span><p><b>Pull request.</b> A base→head <em>delta</em>: attribute each contradiction as introduced / fixed / pre-existing (exact per-claim), fold the PR description's claims into the head, and gate on regressions. A still-dirty head can honestly pass if the PR introduced nothing new.</p></div>
         </div>
       </section>
 

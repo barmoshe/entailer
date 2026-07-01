@@ -152,5 +152,14 @@ export {
   evaluateRepo,
 } from "./adapters/repo.js";
 
+export {
+  type PrInput,
+  type PrFile,
+  type PrMetadata,
+  type PrGate,
+  type DescriptionSeverity,
+  evaluatePr,
+} from "./adapters/pr.js";
+
 // ---- Taxonomy (machine-consumable; seeded, codegen pending) ---------------
 export * from "./taxonomy.js";

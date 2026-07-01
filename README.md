@@ -37,6 +37,8 @@ where Entailer is headed (Tiers 3 and 4 below).
 # CLI
 npx @entailer/cli markdown spec.md           # Tier 3: within-doc consistency
 npx @entailer/cli repo .                      # Tier 4: cross-file consistency
+npx @entailer/cli pr 42                        # Tier 5: base→head delta over PR #42 (gh + git)
+npx @entailer/cli pr --base main              # Tier 5: working tree vs a local git ref
 npx @entailer/cli sentence "a -> a"           # Tier 1: classify a claim
 npx @entailer/cli check --ir argument.json    # validity of a supplied argument
 
