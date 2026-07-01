@@ -6,6 +6,41 @@ versioning. All packages are versioned together.
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-07-01
+
+### Added
+- **The concept-faithfulness lens (`evaluateDomain`) — a new axis, not a tier.**
+  Keeps a project faithful to its own *concepts* across code and prose. You declare
+  a small concept cluster on its four sides (relationships / defining rule /
+  examples / vocabulary); the lens classifies identifier sites and reports leaks as
+  **ranked evidence**. Only **rank-1** is a verdict — a deterministic contradiction:
+  one identifier fusing two concepts declared disjoint (`is-not`), or a
+  self-contradictory declaration caught by the honest-recursion pre-check before any
+  file is read. **Ranks 2–3 are reader hints** (`readerAssisted`): they assert
+  nothing, can never be a blocker, and can never render in the certificate register
+  — enforced by the `DomainReport` schema (`.superRefine`), the same way
+  `LogicReport` enforces its honesty invariants. An `is-a` overlap is satisfiable by
+  construction and stays silent (no false positive on legitimately-overlapping
+  concepts). `noLeakFound` means "no deterministic leak surfaced", never "proven
+  faithful". `target.tier` is unchanged (`1..5`) — the lens is a distinct
+  `DomainReport` on an orthogonal axis.
+- **CLI `entailer domain --lens <file.yaml|json> --repo <dir>`** (+ `--gate
+  introduced` to report only leaks new vs a `--base <ref>`). Exit `0` clean / `1`
+  rank-1 leak / `2` malformed declaration. Adds a `yaml` dependency to `@entailer/cli`.
+- **MCP tool `evaluate_domain`** (spec + files → `DomainReport`; `gate=introduced`
+  diffs vs a supplied base), auto-exposed by the existing Claude + Codex plugins.
+- **viz: `domainMapView` / `domainMapToMermaid` / `domainBadge`.** Certificate-gated
+  like `verdictBadge`: `leak` only for a rank-1 verdict; hint nodes render with a
+  distinct dashed class so a picture never launders a hint into a verdict.
+- **Site: a live in-browser domain-lens demo** — declare a cluster, watch the real
+  engine flag a leak, hold silent on a legitimate `is-a` overlap, and pass its own
+  `validity ≠ truth ≠ faithful-formalization` calibration case.
+
+### Notes
+- No breaking changes; all five tiers and their APIs are unchanged. Deferred past
+  this release: the LLM-grounded rank-3 prose-vs-practice detector, execution-grounded
+  detection, and the standing-rule adjudication store.
+
 ## [1.1.0] - 2026-07-01
 
 ### Added

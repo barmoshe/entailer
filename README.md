@@ -41,6 +41,7 @@ npx @entailer/cli pr 42                        # Tier 5: base→head delta over 
 npx @entailer/cli pr --base main              # Tier 5: working tree vs a local git ref
 npx @entailer/cli sentence "a -> a"           # Tier 1: classify a claim
 npx @entailer/cli check --ir argument.json    # validity of a supplied argument
+npx @entailer/cli domain --lens access.yaml --repo .   # Lens: concept faithfulness (not a tier)
 
 # Library
 npm i @entailer/core
@@ -104,6 +105,42 @@ re-implementing logic.
 The deterministic core takes the formalization as supplied input; the LLM translator
 (`@entailer/translate`) produces it from prose and degrades to `UNKNOWN` when the
 translation is shaky.
+
+## The concept-faithfulness lens (an orthogonal axis, not a tier)
+
+The five tiers ask *does the logic hold?* The **domain lens** asks a different
+question on a different axis: *does the code stay faithful to its own concepts?*
+You declare a small concept cluster on its four sides — relationships, a defining
+rule, examples, and vocabulary — and the lens flags where a codebase drifts from it.
+
+```yaml
+# access.yaml — a concept cluster
+cluster: access
+boundary: ["src/**"]
+concepts:
+  - concept: member
+    vocabulary: [member, subscriber]
+  - concept: guest
+    vocabulary: [guest, anonymous]
+relationships:
+  - member is-not guest   # declared mutually exclusive
+```
+
+```sh
+npx @entailer/cli domain --lens access.yaml --repo .
+# ⛔ concept-fusion  src/access.ts:1 — identifier `grantMemberGuest` names both
+#    `member` and `guest`, which the cluster declares mutually exclusive.  exit 1
+```
+
+It is honest the same way the tiers are. Only a **rank-1** finding is a *verdict* —
+a deterministic contradiction: one identifier fusing two `is-not` concepts, or a
+self-contradictory declaration (caught before any file is read). **Ranks 2–3 are
+reader hints** — they assert nothing, can never block, and never render as a
+certificate. An `is-a` overlap (a `member` that *is* a `user`) is satisfiable by
+construction, so it stays silent — no false positive. The one weak link,
+classification ("is this token a `member`-use?"), is lexical and named as such: a
+human confirms each site as the adjudication step. `--gate introduced` reports only
+leaks new versus a base ref. Also available as the MCP tool `evaluate_domain`.
 
 ## Packages
 
