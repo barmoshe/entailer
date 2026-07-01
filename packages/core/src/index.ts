@@ -161,5 +161,45 @@ export {
   evaluatePr,
 } from "./adapters/pr.js";
 
+// ---- Domain-entailment lens (concept faithfulness — an orthogonal axis) ----
+export {
+  type RelationVerb,
+  type Concept,
+  type DomainSpec,
+  type CompiledRelation,
+  relationVerbSchema,
+  conceptSchema,
+  domainSpecSchema,
+  DomainSpecError,
+  parseDomainSpec,
+  compileRelations,
+  normalizeConcept,
+  subsumptionClosure,
+} from "./domain-spec.js";
+
+export {
+  type DomainRank,
+  type DomainEvidence,
+  type DomainLocation,
+  type DomainFinding,
+  type DomainReport,
+  type BuildDomainReportInput,
+  domainRankSchema,
+  domainEvidenceSchema,
+  domainFindingSchema,
+  domainReportSchema,
+  buildDomainReport,
+  domainVerdict,
+  domainToMarkdown,
+} from "./domain-report.js";
+
+export {
+  type DomainInput,
+  evaluateDomain,
+  honestRecursionPrecheck,
+  splitIdentifier,
+  siteSignature,
+} from "./adapters/domain.js";
+
 // ---- Taxonomy (machine-consumable; seeded, codegen pending) ---------------
 export * from "./taxonomy.js";
