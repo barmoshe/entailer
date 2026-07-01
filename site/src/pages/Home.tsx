@@ -1,23 +1,12 @@
-import { useEffect, useState } from "react";
 import { Link } from "../router.js";
-import { SCENARIOS } from "../data/scenarios.js";
-import { OwnView } from "../components/OwnView.js";
-import { PrDemo } from "../components/PrDemo.js";
-import { DomainDemo } from "../components/DomainDemo.js";
-import { RepoReport } from "../components/RepoReport.js";
-import { ScenarioView } from "../components/ScenarioView.js";
+import { VerdictBadge } from "../components/VerdictBadge.js";
 
-export function Home({ anchor }: { anchor?: string | null }) {
-  const [active, setActive] = useState<string>(SCENARIOS[0]!.id);
-  const scenario = SCENARIOS.find((s) => s.id === active) ?? null;
-
-  // Honor an incoming #/#playground anchor once mounted.
-  useEffect(() => {
-    if (anchor) {
-      requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView({ behavior: "smooth" }));
-    }
-  }, [anchor]);
-
+/* ------------------------------------------------------------------ *
+ * Home = the pitch, kept lean. One hero, one honest taste of a verdict,
+ * the two axes, the packages. Every live exhibit lives on the
+ * Playground page so the landing stays scannable.
+ * ------------------------------------------------------------------ */
+export function Home() {
   return (
     <>
       <header className="hero">
@@ -33,23 +22,20 @@ export function Home({ anchor }: { anchor?: string | null }) {
                 alt=""
                 aria-hidden="true"
               />
-              <div className="eyebrow">does it follow?</div>
+              <div className="eyebrow">v1.2.0 · now with the concept lens</div>
               <h1 className="title">
                 entail<em>er</em>
               </h1>
               <p className="tagline">a logician's-pass linter for software artifacts.</p>
               <p className="lede">
-                A linter for <i>style</i> cannot catch a spec that quietly contradicts itself, or an
-                argument that sounds airtight but doesn't follow. Entailer formalizes the load-bearing
-                claims in your prose into logic and checks them deterministically. It reports{" "}
-                <b>validity</b> and <b>consistency</b> separately from <b>truth</b>, and never ships a
-                verdict without showing the formalization it judged. Pick a real artifact below — the
-                engine runs in your browser.
+                A style linter can't catch a spec that quietly contradicts itself. Entailer formalizes the
+                load-bearing claims in your prose into logic and checks them deterministically — reporting{" "}
+                <b>validity</b> and <b>consistency</b> separately from <b>truth</b>, and never shipping a
+                verdict without the formalization it judged.
               </p>
               <div className="cta">
-                <a className="btn primary" href="#playground">See it catch a bug</a>
+                <Link to="playground" className="btn primary">Open the playground</Link>
                 <Link to="math" className="btn">The mathematics</Link>
-                <Link to="docs" className="btn">Docs</Link>
                 <a className="btn" href="https://github.com/barmoshe/entailer">GitHub</a>
               </div>
             </div>
@@ -58,7 +44,7 @@ export function Home({ anchor }: { anchor?: string | null }) {
                 src={`${import.meta.env.BASE_URL}owl-verdict.webp`}
                 width={800}
                 height={1000}
-                alt="A spectacled owl judge in a teal coat inspects a nervous stack of code files (README.md, main.py, utils.js) in an 'awesome-repo' box through a magnifying glass, about to stamp a VALID certificate with a wax seal, the entails symbol glowing above."
+                alt="A spectacled owl judge in a teal coat inspects a nervous stack of code files through a magnifying glass, about to stamp a VALID certificate with a wax seal, the entails symbol glowing above."
               />
             </div>
           </div>
@@ -80,133 +66,92 @@ export function Home({ anchor }: { anchor?: string | null }) {
         </div>
       </header>
 
-      <section id="playground" className="wrap">
+      <section className="wrap">
         <div className="section-head">
           <span className="n">01</span>
-          <h2>See it on a real artifact</h2>
+          <h2>What a verdict looks like</h2>
         </div>
         <p className="section-lede">
-          Each card is a real software artifact in plain English. Entailer formalizes the claims,
-          judges them, and shows its work — including <em>why</em>, as a certificate you can read.
+          Three requirements in plain English, quietly at war. A style linter sees nothing wrong; Entailer
+          returns the <em>minimal conflicting set</em> — the smallest group of claims that can't all hold.
         </p>
-
-        <div className="scenarios">
-          {SCENARIOS.map((s) => (
-            <button
-              key={s.id}
-              className={`scn ${active === s.id ? "on" : ""}`}
-              onClick={() => setActive(s.id)}
-            >
-              <span className="scn-tag">{s.tag}</span>
-              <span className="scn-title">{s.title}</span>
-              <span className="scn-blurb">{s.blurb}</span>
-              <span className="scn-hint">{s.hint}</span>
-            </button>
-          ))}
-          <button
-            className={`scn own ${active === "own" ? "on" : ""}`}
-            onClick={() => setActive("own")}
-          >
-            <span className="scn-tag">sandbox</span>
-            <span className="scn-title">Write your own</span>
-            <span className="scn-blurb">Drop your own requirements into a fenced block and watch the engine check them.</span>
-            <span className="scn-hint">live Tier-3 engine</span>
-          </button>
-        </div>
-
-        <div className="pg">
-          {active === "own" ? <OwnView /> : scenario && <ScenarioView scenario={scenario} />}
+        <div className="taste">
+          <div className="taste-doc">
+            <div className="taste-name">spec.md</div>
+            <pre className="taste-body">
+{`R1  Every request must be logged.
+R2  Health-check requests must not be logged.
+R3  /healthz is a request.`}
+            </pre>
+          </div>
+          <div className="taste-out">
+            <VerdictBadge badge="inconsistent" label="INCONSISTENT" />
+            <p className="taste-why">
+              minimal conflicting subset <code>{`{R1, R2, R3}`}</code> — R3 makes <code>/healthz</code> a
+              request, R1 forces it logged, R2 forbids it.
+            </p>
+            <Link to="playground" anchor="artifacts" className="btn primary">Run it yourself →</Link>
+          </div>
         </div>
       </section>
 
       <section className="wrap">
         <div className="section-head">
           <span className="n">02</span>
-          <h2>The whole-repo view</h2>
+          <h2>Two axes, one honest core</h2>
         </div>
         <p className="section-lede">
-          Tier 4 runs the same consistency check across a whole repository, then reports the{" "}
-          <em>minimal conflicting set</em> whose claims span different files — the contradictions a
-          style linter structurally cannot see. A representative report:
+          The same deterministic kernel judges along two independent axes. Every surface is live in the{" "}
+          <Link to="playground">playground</Link>.
         </p>
-        <RepoReport />
-        <p className="repo-caveat">
-          Illustrative — a real run is <code>npx @entailer/cli repo .</code>; the core itself stays
-          filesystem-free and only ever judges supplied claims.
-        </p>
+        <div className="axes">
+          <div className="axis">
+            <div className="axis-head">
+              <span className="axis-kicker">five tiers</span>
+              <h3>Does the logic hold?</h3>
+            </div>
+            <ul className="axis-list">
+              <li><b>1 · Sentence</b> — classify a claim; flag vacuous "guarantees".</li>
+              <li><b>2 · Prompt</b> — recover the conclusion, check whether it follows.</li>
+              <li><b>3 · Markdown</b> — within-doc consistency, back to <code>path:line</code>.</li>
+              <li><b>4 · Repo</b> — cross-file conflicts spanning different files.</li>
+              <li><b>5 · Pull request</b> — a base→head delta; gate on regressions, not a dirty head.</li>
+            </ul>
+            <Link to="playground" anchor="pr" className="axis-cta">Try the PR gate →</Link>
+          </div>
+          <div className="axis">
+            <div className="axis-head">
+              <span className="axis-kicker">a lens, not a tier</span>
+              <h3>Does the code stay faithful to its concepts?</h3>
+            </div>
+            <p className="axis-body">
+              Declare a small concept cluster on its four sides — relationships, rule, examples,
+              vocabulary. The lens flags where one identifier fuses two concepts you declared mutually
+              exclusive. Only a <b>rank-1</b> contradiction is a verdict; a legitimate <code>is-a</code>{" "}
+              overlap stays silent, so there's no false positive. Ranks 2–3 are reader hints that assert
+              nothing and can never block.
+            </p>
+            <Link to="playground" anchor="lens" className="axis-cta">Try the concept lens →</Link>
+          </div>
+        </div>
       </section>
 
       <section className="wrap">
         <div className="section-head">
           <span className="n">03</span>
-          <h2>The pull-request gate</h2>
-        </div>
-        <p className="section-lede">
-          Tier 5 asks a sharper question than "is the repo consistent?" — it asks{" "}
-          <em>did this PR make it worse?</em> It computes a <b>base→head delta</b> and attributes every
-          contradiction as introduced, fixed, or pre-existing. A still-messy repo can merge honestly, as
-          long as the diff added nothing new. This demo runs the real engine in your browser — pick a PR,
-          flip the gate:
-        </p>
-        <PrDemo />
-        <p className="repo-caveat">
-          Live <code>evaluatePr</code> from <code>@entailer/core</code>. A real run is{" "}
-          <code>entailer pr 128</code> (or <code>--base main</code>); <code>gate=head</code> fails on any
-          head inconsistency, <code>gate=introduced</code> fails only on what the PR introduced.
-        </p>
-      </section>
-
-      <section id="lens" className="wrap">
-        <div className="section-head">
-          <span className="n">04</span>
-          <h2>The concept-faithfulness lens</h2>
-        </div>
-        <p className="section-lede">
-          A different axis from the five tiers: not "does the logic hold?" but{" "}
-          <em>does the code stay faithful to its own concepts?</em> You declare a small cluster —{" "}
-          <code>member</code>, <code>guest</code>, <code>user</code> — on its four sides
-          (relationships, rule, examples, vocabulary). The lens flags where one identifier fuses two
-          concepts you declared mutually exclusive. Only a <b>rank-1</b> contradiction is a verdict;
-          a legitimate <code>is-a</code> overlap stays silent. This runs the real engine in your browser:
-        </p>
-        <DomainDemo />
-        <p className="repo-caveat">
-          Live <code>evaluateDomain</code> from <code>@entailer/core</code>. Classification is lexical —
-          the irreducible weak link — so a human confirms each site; ranks 2–3 are reader hints, never a
-          blocking claim. Not a tier: a distinct axis on the same honest core.
-        </p>
-      </section>
-
-      <section className="wrap">
-        <div className="section-head">
-          <span className="n">05</span>
-          <h2>Five tiers, one core</h2>
-        </div>
-        <div className="tiers">
-          <div className="tier"><span className="lvl">1</span><p><b>Sentence.</b> Classify a single claim: tautology, contingent, contradiction — and flag vacuous "guarantees".</p></div>
-          <div className="tier"><span className="lvl">2</span><p><b>Prompt / argument.</b> Recover the conclusion from indicator words, handle enthymemes, check whether it follows.</p></div>
-          <div className="tier"><span className="lvl">3</span><p><b>Markdown.</b> Within-doc consistency over fenced claim blocks, reported back to <code>path:line</code>.</p></div>
-          <div className="tier"><span className="lvl">4</span><p><b>Repo.</b> Cross-file consistency: a minimal conflicting set whose claims span different files.</p></div>
-          <div className="tier"><span className="lvl">5</span><p><b>Pull request.</b> A base→head delta: introduced vs pre-existing vs fixed, exact per-claim. Gate on regressions, not on a still-dirty head.</p></div>
-        </div>
-      </section>
-
-      <section className="wrap">
-        <div className="section-head">
-          <span className="n">06</span>
           <h2>Packages</h2>
         </div>
         <div className="pkgs">
-          <div className="pkg"><code>@entailer/core</code><p>The trusted kernel: AST, parser, DPLL + tableau, verify API, IR, and the honesty-checked LogicReport. Pure TypeScript.</p></div>
-          <div className="pkg"><code>@entailer/cli</code><p>The <code>entailer</code> binary: sentence / check / prompt / markdown / repo / pr, with honest exit codes.</p></div>
+          <div className="pkg"><code>@entailer/core</code><p>The trusted kernel: AST, parser, DPLL + tableau, verify API, IR, the honesty-checked LogicReport, and the domain lens. Pure TypeScript.</p></div>
+          <div className="pkg"><code>@entailer/cli</code><p>The <code>entailer</code> binary: sentence / check / prompt / markdown / repo / pr / domain, with honest exit codes.</p></div>
           <div className="pkg"><code>@entailer/mcp</code><p>A stdio MCP server exposing the deterministic check / evaluate tools with structured output.</p></div>
           <div className="pkg"><code>@entailer/translate</code><p>The only LLM-touching package: prose to a validated IR, degrading to UNKNOWN on a shaky translation.</p></div>
           <div className="pkg"><code>@entailer/viz</code><p>Deterministic view-models and renderers (text, SVG, Mermaid) — the ones powering this page.</p></div>
           <div className="pkg"><code>@entailer/solver</code><p>Opt-in Z3/SMT escalation behind a capability probe. An amplifier, never a gate.</p></div>
         </div>
         <p className="section-lede" style={{ marginTop: 24 }}>
-          Want the full API and CLI reference? See the <Link to="docs">Docs</Link>. Curious how the verdicts are
-          computed? Read <Link to="math">The Mathematics</Link>.
+          Full API and CLI reference is in the <Link to="docs">Docs</Link>; how the verdicts are computed
+          is in <Link to="math">The Mathematics</Link>.
         </p>
       </section>
     </>

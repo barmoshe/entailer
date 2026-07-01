@@ -3,6 +3,7 @@ import { Filters } from "./components/Filters.js";
 import { Footer } from "./components/Footer.js";
 import { Nav } from "./components/Nav.js";
 import { Home } from "./pages/Home.js";
+import { Playground } from "./pages/Playground.js";
 import { Docs } from "./pages/Docs.js";
 import { Math } from "./pages/Math.js";
 import { Showcase } from "./pages/Showcase.js";
@@ -18,14 +19,16 @@ export function App() {
     <>
       <Filters />
       <Nav route={route} />
-      {route.page === "docs" ? (
+      {route.page === "playground" ? (
+        <Playground anchor={route.anchor} />
+      ) : route.page === "docs" ? (
         <Docs />
       ) : route.page === "math" ? (
         <Math />
       ) : route.page === "showcase" ? (
         <Showcase />
       ) : (
-        <Home anchor={route.anchor} />
+        <Home />
       )}
       <Footer />
     </>

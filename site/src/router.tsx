@@ -11,7 +11,7 @@
  * ------------------------------------------------------------------ */
 import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
 
-export type Page = "home" | "docs" | "math" | "showcase";
+export type Page = "home" | "playground" | "docs" | "math" | "showcase";
 
 export interface Route {
   readonly page: Page;
@@ -19,7 +19,7 @@ export interface Route {
   readonly anchor: string | null;
 }
 
-const PAGES: readonly Page[] = ["home", "docs", "math", "showcase"];
+const PAGES: readonly Page[] = ["home", "playground", "docs", "math", "showcase"];
 
 /** Parse `location.hash` into a route. Non-route hashes resolve to Home. */
 export const parseHash = (hash: string): Route => {

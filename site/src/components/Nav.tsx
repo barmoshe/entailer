@@ -2,6 +2,7 @@ import { Link, type Page, type Route } from "../router.js";
 
 const ITEMS: { to: Page; label: string }[] = [
   { to: "home", label: "Home" },
+  { to: "playground", label: "Playground" },
   { to: "docs", label: "Docs" },
   { to: "math", label: "The Mathematics" },
   { to: "showcase", label: "Showcase" },
