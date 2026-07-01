@@ -107,9 +107,9 @@ The verifier reads only `args[].premises[].ast` / `conclusion.ast` and the `scop
 
 ---
 
-## 5. The four tiers
+## 5. The five tiers
 
-One canonical pipeline; a **tier is a `SourceAdapter: (raw) => ClaimSet`** over one tier-agnostic engine. Tiers are an **additive capability ladder**, not four products.
+One canonical pipeline; a **tier is a `SourceAdapter: (raw) => ClaimSet`** over one tier-agnostic engine. Tiers are an **additive capability ladder**, not five products.
 
 | Tier | Input | What the adapter adds | Consistency scope | Logic core change |
 |---|---|---|---|---|
@@ -202,7 +202,7 @@ Every `evaluate_*` and `check_validity` result is **refused by schema** unless i
 | 3 | **CounterModelView** | `{ domain?, assignment, satisfies: id[], falsifies: id, provenance }` | the model that breaks the argument ⇒ invalid |
 | 4 | **ClaimGraphView** | `{ nodes: {id, claimText, source:'path:line', formalTeX, supplied:bool, confidence}[], edges:{from,to,kind:'entails'\|'depends'\|'conflicts'}[], minimalConflictingSubset?: id[] }` | unsat-core spanning files ⇒ inconsistent (the repo "contradiction heatmap" is just a styling mode = node fill by conflict-participation) |
 
-**Hard renderer invariant (the validity-certificate discipline, ref 04/13):** a view colors something VALID only if a proof/UNSAT certificate object is present, INVALID only if a witnessed (finite) counter-model is present; **"bounded search, inconclusive" / "no finite witness" renders as an explicit inconclusive state, never as VALID.** Nodes carry structured provenance (`literal | supplied | llm-recovered | ambiguous`) + a legend, so the picture cannot launder an LLM guess into a logical guarantee. View-models are stamped with the **formalization content-hash + model id + temperature** so the render is deterministic given a frozen formalization (layout uses a pinned seed / deterministic algorithm). *The moat is the verdict-gating contract in the core, not the pixels — proof-viz toys exist (tpg/umsu, Mace4, Nitpick), so we compete on the four-tier escalation + packaging, not on the render alone.*
+**Hard renderer invariant (the validity-certificate discipline, ref 04/13):** a view colors something VALID only if a proof/UNSAT certificate object is present, INVALID only if a witnessed (finite) counter-model is present; **"bounded search, inconclusive" / "no finite witness" renders as an explicit inconclusive state, never as VALID.** Nodes carry structured provenance (`literal | supplied | llm-recovered | ambiguous`) + a legend, so the picture cannot launder an LLM guess into a logical guarantee. View-models are stamped with the **formalization content-hash + model id + temperature** so the render is deterministic given a frozen formalization (layout uses a pinned seed / deterministic algorithm). *The moat is the verdict-gating contract in the core, not the pixels — proof-viz toys exist (tpg/umsu, Mace4, Nitpick), so we compete on the five-tier escalation + packaging, not on the render alone.*
 
 ---
 
@@ -293,7 +293,7 @@ Split the suite at the **formalize boundary**.
 3. **Tier-4 selection error is invisible to the engine** — a dropped load-bearing doc yields a confident verdict over an incomplete ClaimSet and can *invert* an INCONSISTENT result. Mitigated by high-recall selection + the mandatory coverage caveat + deterministic always-include globs, but recall is empirically ~67–84% (requirement-extraction proxy), so it stays a tracked residual.
 4. **Cross-file synonymy can hide a real contradiction** if canonicalization mis-merges or misses an alias; the residual-synonymy pass raises the floor but offers no completeness guarantee — reported as "checked within canonical clusters", never a clean "consistent".
 5. **Z3-WASM operational surface** — worker-thread leak, single-threaded serialization, large payload, `unknown` on quantifiers. Contained by out-of-process short-lived workers + hard timeouts + lazy guarded init, but it is a heavy dep the team owns.
-6. **The viz moat is thin and time-limited** — proof/counter-model rendering is commodity; durability comes from the four-tier escalation + packaging + the core's verdict-gating contract, not the pixels.
+6. **The viz moat is thin and time-limited** — proof/counter-model rendering is commodity; durability comes from the five-tier escalation + packaging + the core's verdict-gating contract, not the pixels.
 7. **Differentiation is back-loaded** — it is invisible unless Tier-3/4 and cross-claim consistency are *actually built and demoed*; if they slip, the "reinventing NL2FOL" criticism lands. Front-load the Tier-3/4 inconsistent-spec demo to neutralize this.
 
 ---

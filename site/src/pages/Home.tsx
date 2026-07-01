@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "../router.js";
 import { SCENARIOS } from "../data/scenarios.js";
 import { OwnView } from "../components/OwnView.js";
+import { PrDemo } from "../components/PrDemo.js";
 import { RepoReport } from "../components/RepoReport.js";
 import { ScenarioView } from "../components/ScenarioView.js";
 
@@ -137,19 +138,40 @@ export function Home({ anchor }: { anchor?: string | null }) {
       <section className="wrap">
         <div className="section-head">
           <span className="n">03</span>
-          <h2>Four tiers, one core</h2>
+          <h2>The pull-request gate</h2>
+        </div>
+        <p className="section-lede">
+          Tier 5 asks a sharper question than "is the repo consistent?" — it asks{" "}
+          <em>did this PR make it worse?</em> It computes a <b>base→head delta</b> and attributes every
+          contradiction as introduced, fixed, or pre-existing. A still-messy repo can merge honestly, as
+          long as the diff added nothing new. This demo runs the real engine in your browser — pick a PR,
+          flip the gate:
+        </p>
+        <PrDemo />
+        <p className="repo-caveat">
+          Live <code>evaluatePr</code> from <code>@entailer/core</code>. A real run is{" "}
+          <code>entailer pr 128</code> (or <code>--base main</code>); <code>gate=head</code> fails on any
+          head inconsistency, <code>gate=introduced</code> fails only on what the PR introduced.
+        </p>
+      </section>
+
+      <section className="wrap">
+        <div className="section-head">
+          <span className="n">04</span>
+          <h2>Five tiers, one core</h2>
         </div>
         <div className="tiers">
           <div className="tier"><span className="lvl">1</span><p><b>Sentence.</b> Classify a single claim: tautology, contingent, contradiction — and flag vacuous "guarantees".</p></div>
           <div className="tier"><span className="lvl">2</span><p><b>Prompt / argument.</b> Recover the conclusion from indicator words, handle enthymemes, check whether it follows.</p></div>
           <div className="tier"><span className="lvl">3</span><p><b>Markdown.</b> Within-doc consistency over fenced claim blocks, reported back to <code>path:line</code>.</p></div>
           <div className="tier"><span className="lvl">4</span><p><b>Repo.</b> Cross-file consistency: a minimal conflicting set whose claims span different files.</p></div>
+          <div className="tier"><span className="lvl">5</span><p><b>Pull request.</b> A base→head delta: introduced vs pre-existing vs fixed, exact per-claim. Gate on regressions, not on a still-dirty head.</p></div>
         </div>
       </section>
 
       <section className="wrap">
         <div className="section-head">
-          <span className="n">04</span>
+          <span className="n">05</span>
           <h2>Packages</h2>
         </div>
         <div className="pkgs">
