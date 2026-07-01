@@ -1,0 +1,17 @@
+# A concept cluster for the domain-entailment lens.
+# Run:  npx @entailer/cli domain --lens access.yaml --repo .
+cluster: access
+boundary:
+  - "**/*.ts"
+concepts:
+  - concept: member
+    vocabulary: [member, subscriber]
+    rule: an authenticated account with a paid entitlement
+    examples:
+      positive: [alice, paidUser]
+      negative: [visitor]
+  - concept: guest
+    vocabulary: [guest, anonymous, visitor]
+    rule: an unauthenticated caller with no entitlement
+relationships:
+  - member is-not guest   # a member and a guest are mutually exclusive

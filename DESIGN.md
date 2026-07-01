@@ -142,6 +142,43 @@ attribution is **exact per-claim**, not an approximation.
 
 ---
 
+## 5b. The concept-faithfulness lens (an orthogonal axis, v1.2.0)
+
+The five tiers ask *does the logic hold?* The **domain lens** asks a different
+question on an independent axis: *does the code stay faithful to its own concepts?*
+It reuses the infrastructure (Tier-4 selection, `path:line` provenance, the report
+honesty discipline, viz, MCP/CLI) but **not** the SAT/DPLL/tableau verifier, and
+introduces no new trusted kernel (framing ADR 0012; design ADR 0013).
+
+- **Input.** A human declares a small concept cluster on its four sides —
+  relationships / defining rule / examples / vocabulary (`DomainSpec`). Only two
+  relation verbs are machine-checkable: `is-a` (subsumption `A ⊑ B`) and `is-not`
+  (disjointness `A ⊓ B = ⊥`). Subsumption is satisfiable by construction, so a
+  `member` that *is* a `user` co-occurring is silence; only disjointness is
+  violable, which is what makes a leak a *contradiction*.
+- **Detect (detect-then-adjudicate).** An honest-recursion pre-check first asks
+  whether the declaration is even self-consistent (a pair declared both `is-a` and
+  `is-not`; an identifier both a positive and negative example) — the cheapest,
+  weak-link-free move, before any file is read. Then it classifies identifier sites
+  lexically and fires **rank-1** when one identifier fuses two disjoint concepts.
+- **Honesty.** Only **rank-1** is a verdict, carrying a ≥2-receipt minimal
+  conflicting subset. **Ranks 2–3 are reader hints** (`readerAssisted`): they assert
+  nothing, can never be a blocker, and never render in the certificate register —
+  enforced by `DomainReport`'s `.superRefine`, mirroring `LogicReport`.
+  `noLeakFound` is the analogue of `noContradictionFound`.
+- **The weak link, named.** Classification ("is this token a `member`-use?") is
+  lexical, so it is the irreducible weak link — high recall, precision contingent on
+  a human confirming each site as the adjudication step. The tool never emits an
+  absolute same/different judgment; only a declared-disjointness collision fires.
+- **Surface.** `entailer domain --lens <cluster> --repo <dir>` (`--gate introduced`
+  reports only leaks new vs a base ref), the MCP tool `evaluate_domain`, and
+  `domainMapView`/`domainBadge` in viz. `target.tier` stays `1..5`; the lens is a
+  distinct `DomainReport`, not a sixth tier. Deferred past v1.2.0: the LLM-grounded
+  rank-3 prose-vs-practice detector, execution-grounded detection, and the
+  standing-rule adjudication store.
+
+---
+
 ## 6. The engine pipeline
 
 ```

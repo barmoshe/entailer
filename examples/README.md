@@ -26,6 +26,16 @@ node packages/cli/dist/index.js repo examples/repo-demo
 # -> INCONSISTENT, cross-file conflict spanning README.md and SPEC.md
 ```
 
+## Lens — concept faithfulness (an axis, not a tier)
+
+```sh
+node packages/cli/dist/index.js domain --lens examples/domain-lens/access.yaml --repo examples/domain-lens
+# -> rank-1 concept-fusion: `grantMemberGuest` names both member and guest, exit 1
+```
+
+See [`domain-lens/`](./domain-lens) — a concept cluster declared on its four sides,
+and a source file that fuses two mutually-exclusive concepts in one identifier.
+
 ## Programmatic (library)
 
 ```sh
