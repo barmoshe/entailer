@@ -119,7 +119,8 @@ code, .mono { font-family: var(--mono); }
  * tears like watercolor stock. A drop-shadow inside the same filter chain makes
  * the lift follow the torn edge. --ce / --cb let each card set its accent.
  * ================================================================== */
-.discipline div, .scn, .pkg, .cert, .tier, .repo, .rcard, .stmt, .rrow, .badge, .svgwrap {
+.discipline div, .scn, .pkg, .cert, .tier, .repo, .rcard, .stmt, .rrow, .badge, .svgwrap,
+.widget, .gcard, .split-card, .codeblock, .formula-callout, .prooftree, .doc-toc {
   position: relative;
   isolation: isolate;
   background: transparent;
@@ -128,7 +129,9 @@ code, .mono { font-family: var(--mono); }
   --cb: transparent;
 }
 .discipline div::before, .scn::before, .pkg::before, .cert::before, .tier::before, .repo::before,
-.rcard::before, .stmt::before, .rrow::before, .badge::before, .svgwrap::before {
+.rcard::before, .stmt::before, .rrow::before, .badge::before, .svgwrap::before,
+.widget::before, .gcard::before, .split-card::before, .codeblock::before,
+.formula-callout::before, .prooftree::before, .doc-toc::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -691,6 +694,8 @@ footer code { font-family: var(--mono); color: var(--ink-muted); }
   .discipline div::before, .scn::before, .pkg::before, .cert::before, .tier::before,
   .repo::before, .rcard::before, .stmt::before, .rrow::before, .badge::before,
   .svgwrap::before, .hero-art::before, .btn::before,
+  .widget::before, .gcard::before, .split-card::before, .codeblock::before,
+  .formula-callout::before, .prooftree::before, .doc-toc::before,
   .scn:hover::before, .btn:hover::before {
     filter: none;
     box-shadow: var(--lift);
@@ -703,4 +708,179 @@ footer code { font-family: var(--mono); color: var(--ink-muted); }
   .fadein { animation: none; }
   html { scroll-behavior: auto; }
   .scn:hover { transform: none; }
+}
+
+/* ================================================================== *
+ * Multi-page chrome — nav, page headers, docs & math layout, and the
+ * live math/showcase widgets. Everything reuses the watercolor tokens
+ * and the shared torn-paper ::before machinery declared above.
+ * ================================================================== */
+
+/* ---- Top nav ---- */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(6px);
+  background: color-mix(in oklab, var(--paper) 82%, transparent);
+  border-bottom: 1px solid var(--line);
+}
+.nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 11px; }
+.nav-brand { display: inline-flex; align-items: center; gap: 9px; color: var(--ink); }
+.nav-brand:hover { text-decoration: none; }
+.nav-brand span { font-family: var(--serif); font-size: 23px; line-height: 1; }
+.nav-brand em { font-style: italic; color: var(--teal); }
+.nav-links { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.nav-links a {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--ink-muted);
+  padding: 7px 11px;
+  border-radius: 9px 11px 9px 11px;
+}
+.nav-links a:hover { color: var(--teal-deep); text-decoration: none; background: color-mix(in oklab, var(--ochre) 12%, transparent); }
+.nav-links a.on { color: var(--teal-deep); background: color-mix(in oklab, var(--teal) 15%, transparent); }
+.nav-ext { color: var(--faint) !important; }
+
+/* ---- Page shell (Docs / Math / Showcase) ---- */
+.page { padding-bottom: 40px; }
+.page-head { padding: 46px 0 8px; max-width: 74ch; }
+.page-title { font-family: var(--serif); font-weight: 400; font-size: clamp(44px, 8vw, 76px); line-height: 0.95; margin: 8px 0 0; color: var(--ink); }
+.page-lede { color: var(--ink-muted); font-size: 17px; line-height: 1.6; margin: 18px 0 0; }
+.page-lede b { color: var(--ink); font-weight: 600; }
+.page-lede em { color: var(--terracotta); font-style: italic; }
+
+/* ---- In-page table of contents ---- */
+.doc-toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  padding: 15px 18px;
+  border-radius: 15px 17px 14px 16px;
+  margin: 30px 0 8px;
+}
+.doc-toc a { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); }
+.doc-toc a:hover { color: var(--teal-deep); }
+
+.doc-section { padding-block: 34px; scroll-margin-top: 70px; }
+.doc-section .section-head { margin-top: 4px; }
+
+/* ---- Read-only code blocks ---- */
+.codeblock {
+  border-radius: 14px 16px 13px 15px;
+  padding: 16px 18px;
+  margin: 4px 0 14px;
+  overflow-x: auto;
+}
+.codeblock code {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ink);
+  white-space: pre;
+}
+
+/* ---- Doc tables ---- */
+.doc-table { overflow-x: auto; margin: 6px 0 14px; }
+.doc-table table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.doc-table th, .doc-table td { text-align: left; padding: 9px 14px 9px 0; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+.doc-table th { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); font-weight: 500; }
+.doc-table td { color: var(--ink-muted); }
+.doc-table code { color: var(--teal-deep); font-size: 12.5px; }
+.doc-table sup { font-size: 0.7em; }
+
+/* ---- Doc lists ---- */
+.doc-list { margin: 6px 0 12px; padding-left: 20px; color: var(--ink-muted); }
+.doc-list li { margin: 7px 0; line-height: 1.6; }
+.doc-list b { color: var(--ink); font-weight: 600; }
+.doc-list code { color: var(--teal-deep); font-size: 13px; }
+
+/* ---- Highlighted formula callout ---- */
+.formula-callout {
+  border-radius: 14px 16px 13px 15px;
+  padding: 16px 18px;
+  margin: 8px 0 16px;
+  text-align: center;
+  --ce: var(--teal); --cb: color-mix(in oklab, var(--teal) 14%, transparent);
+}
+.formula-callout code { font-family: var(--mono); font-size: 16px; color: var(--teal-deep); }
+
+/* ---- Two-up split (α/β rules) ---- */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 6px 0 14px; }
+.split-card { border-radius: 16px 18px 15px 17px; padding: 18px 20px; }
+.split-card h4 { margin: 0 0 8px; font-family: var(--mono); font-size: 13px; color: var(--teal-deep); font-weight: 600; }
+.split-card > p { margin: 0 0 10px; color: var(--ink-muted); font-size: 13.5px; }
+
+/* ---- Live widgets (Math) ---- */
+.widget { border-radius: 18px 16px 19px 17px; padding: 20px 22px; margin: 6px 0 12px; }
+.widget-label { display: flex; flex-direction: column; gap: 6px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
+.widget-input {
+  font-family: var(--mono);
+  font-size: 15px;
+  color: var(--ink);
+  border: 1.4px solid var(--edge);
+  border-radius: 11px 13px 10px 12px;
+  padding: 10px 13px;
+  outline: none;
+  background-color: var(--paper);
+  background-image: var(--tooth);
+  background-size: 220px 220px;
+  background-blend-mode: multiply;
+  box-shadow: inset 0 1px 3px rgba(59, 52, 43, 0.07);
+}
+.widget-input:focus { border-color: var(--teal); box-shadow: inset 0 1px 3px rgba(59, 52, 43, 0.07), 0 0 0 2px color-mix(in oklab, var(--teal) 30%, transparent); }
+.widget .svgwrap { margin-top: 14px; }
+.widget .hint { margin-top: 12px; }
+
+/* ---- Tableau / refutation walkthrough ---- */
+.tableau { margin: 6px 0 12px; display: grid; gap: 18px; }
+.tableau-setup { }
+.assume-list { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.assume-list li { }
+.assume-list code {
+  font-family: var(--mono);
+  font-size: 13.5px;
+  color: var(--ink);
+  background: color-mix(in oklab, var(--ochre) 12%, var(--paper));
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 5px 10px;
+  display: inline-block;
+}
+.tableau-result .summary { max-width: 62ch; }
+.prooftree {
+  border-radius: 13px 15px 12px 14px;
+  padding: 15px 17px;
+  margin: 12px 0 0;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--ink);
+  white-space: pre;
+  --ce: var(--teal); --cb: color-mix(in oklab, var(--teal) 12%, transparent);
+}
+
+/* ---- Showcase gallery ---- */
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+.gcard { border-radius: 18px 16px 20px 17px; padding: 20px 21px; display: flex; flex-direction: column; gap: 10px; }
+.gcard-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.gcard-tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep); }
+.gcard-pattern { font-family: var(--mono); font-size: 12px; color: var(--teal-deep); }
+.gcard-title { font-family: var(--serif); font-weight: 400; font-size: 25px; line-height: 1.06; margin: 0; color: var(--ink); }
+.gcard-blurb { color: var(--ink-muted); font-size: 13.5px; line-height: 1.5; margin: 0 0 2px; }
+.gcard .artifact { margin-top: 2px; }
+.gcard-verdict { margin-top: 2px; }
+
+/* ---- Responsive ---- */
+@media (max-width: 760px) {
+  .split { grid-template-columns: 1fr; }
+  .gallery { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .page-head { padding-top: 30px; }
+  .doc-section { padding-block: 26px; }
+  .nav-brand span { font-size: 20px; }
+  .nav-links a { padding: 6px 8px; font-size: 12px; }
+  .widget, .gcard, .split-card { padding: 16px 17px; }
 }
