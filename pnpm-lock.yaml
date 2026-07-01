@@ -26,6 +26,9 @@ importers:
       '@entailer/core':
         specifier: workspace:*
         version: link:../core
+      yaml:
+        specifier: ^2.6.1
+        version: 2.9.0
     devDependencies:
       typescript:
         specifier: ^5.6.3
@@ -1415,6 +1418,11 @@ packages:
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
 
+  yaml@2.9.0:
+    resolution: {integrity: sha512-2AvhNX3mb8zd6Zy7INTtSpl1F15HW6Wnqj0srWlkKLcpYl/gMIMJiyuGq2KeI2YFxUPjdlB+3Lc10seMLtL4cA==}
+    engines: {node: '>= 14.6'}
+    hasBin: true
+
   z3-solver@4.16.0:
     resolution: {integrity: sha512-vWT+I5Yz0dXtseLVZsnkwAIrRmbxw0rCX5a6Xglc6n1CyPESNMnHB3iAWh7XTQQHZRlpWYnKJXTJ0ahTTNHZEg==}
     engines: {node: '>=16'}
@@ -2593,6 +2601,8 @@ snapshots:
   wrappy@1.0.2: {}
 
   yallist@3.1.1: {}
+
+  yaml@2.9.0: {}
 
   z3-solver@4.16.0:
     dependencies:

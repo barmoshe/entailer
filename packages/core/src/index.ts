@@ -184,6 +184,7 @@ export {
   type DomainFinding,
   type DomainReport,
   type BuildDomainReportInput,
+  DOMAIN_HONESTY_CONTRACT,
   domainRankSchema,
   domainEvidenceSchema,
   domainFindingSchema,

@@ -17,7 +17,8 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@entailer/core": "workspace:*"
+    "@entailer/core": "workspace:*",
+    "yaml": "^2.6.1"
   },
   "devDependencies": {
     "typescript": "^5.6.3",

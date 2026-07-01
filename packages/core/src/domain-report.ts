@@ -14,7 +14,13 @@
  */
 import { z } from "zod";
 import { severitySchema } from "./report.js";
-import { HONESTY_CONTRACT } from "./generated/taxonomy.js";
+
+/** The lens's honesty contract — about concept faithfulness, not logical validity. */
+export const DOMAIN_HONESTY_CONTRACT =
+  "This lens checks concept faithfulness, not truth. Only a rank-1 finding is a verdict, and it " +
+  "rests on a lexical classification a human must confirm. Ranks 2-3 are reader hints that assert " +
+  "nothing. noLeakFound means no deterministic leak surfaced across the scanned files, never a " +
+  "proof of faithfulness.";
 
 export const domainRankSchema = z.enum(["rank-1", "rank-2", "rank-3"]);
 export type DomainRank = z.infer<typeof domainRankSchema>;
@@ -144,7 +150,7 @@ export function buildDomainReport(input: BuildDomainReportInput): DomainReport {
     selectionManifest: input.selectionManifest ?? [],
     coverageCaveat: input.coverageCaveat,
     noLeakFound: hasVerdict ? undefined : true,
-    honestyContract: input.honestyContract ?? HONESTY_CONTRACT,
+    honestyContract: input.honestyContract ?? DOMAIN_HONESTY_CONTRACT,
   });
 }
 
