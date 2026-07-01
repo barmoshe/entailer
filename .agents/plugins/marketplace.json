@@ -1,0 +1,20 @@
+{
+  "name": "entailer",
+  "interface": {
+    "displayName": "Entailer"
+  },
+  "plugins": [
+    {
+      "name": "entailer",
+      "source": {
+        "source": "local",
+        "path": "./codex"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

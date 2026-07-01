@@ -2,9 +2,10 @@
  * One-way vendor of the `formalize` skill: workshop → this public repo.
  *
  * Source of truth is the bar_builds workshop's `.claude/skills/formalize/`. This
- * script copies it into `plugin/skills/formalize/` so the open-source repo ships a
- * self-contained prose/judgment layer. The copy is **one-way** — never edit the
- * vendored files expecting changes to flow back upstream.
+ * script copies it into `plugin/skills/formalize/` and mirrors the references into
+ * `codex/skills/entailer/references/` so both plugins ship a self-contained
+ * prose/judgment layer. The copy is **one-way** — never edit the vendored files
+ * expecting changes to flow back upstream.
  *
  * The machine-consumable taxonomy is generated from fenced `entailer-data` blocks
  * in the vendored references by `scripts/gen-taxonomy.mjs` (drift-gated in CI).
@@ -27,6 +28,7 @@ const source = resolve(
   argSource ?? "../bar_builds/.claude/skills/formalize",
 );
 const dest = resolve(repoRoot, "plugin", "skills", "formalize");
+const codexRefsDest = resolve(repoRoot, "codex", "skills", "entailer", "references");
 
 if (!existsSync(source)) {
   console.error(`vendor-skill: source not found: ${source}`);
@@ -58,4 +60,9 @@ if (wouldStrip.length > 0) {
 
 if (existsSync(dest)) rmSync(dest, { recursive: true, force: true });
 cpSync(source, dest, { recursive: true });
+if (existsSync(resolve(repoRoot, "codex", "skills", "entailer"))) {
+  if (existsSync(codexRefsDest)) rmSync(codexRefsDest, { recursive: true, force: true });
+  cpSync(resolve(dest, "references"), codexRefsDest, { recursive: true });
+  console.log(`mirrored ${resolve(dest, "references")} -> ${codexRefsDest}`);
+}
 console.log(`vendored ${source} -> ${dest}`);

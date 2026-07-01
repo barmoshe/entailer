@@ -1,0 +1,41 @@
+{
+  "name": "entailer",
+  "version": "0.1.0",
+  "description": "Check logical validity, consistency, and PR-introduced contradictions with Entailer.",
+  "author": {
+    "name": "Bar Moshe",
+    "url": "https://github.com/barmoshe"
+  },
+  "homepage": "https://github.com/barmoshe/entailer",
+  "repository": "https://github.com/barmoshe/entailer",
+  "license": "MIT",
+  "keywords": [
+    "logic",
+    "validity",
+    "consistency",
+    "formalization",
+    "fallacies",
+    "pull-requests"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Entailer",
+    "shortDescription": "Check validity, consistency, and PR contradictions.",
+    "longDescription": "Entailer is a logician's-pass toolkit for prompts, Markdown, repos, and pull requests. It helps Codex formalize prose into auditable symbols and formulas, then runs deterministic validity and consistency checks through the Entailer CLI or MCP server. It keeps validity separate from truth and requires the symbol dictionary and formalization to be visible in every verdict.",
+    "developerName": "Bar Moshe",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/barmoshe/entailer",
+    "defaultPrompt": [
+      "Is this argument valid?",
+      "Are these requirements consistent?",
+      "Check this PR for contradictions."
+    ],
+    "brandColor": "#2563EB"
+  }
+}

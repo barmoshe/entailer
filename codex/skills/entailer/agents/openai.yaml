@@ -1,0 +1,4 @@
+interface:
+  display_name: "Entailer"
+  short_description: "Check logical validity and consistency"
+  default_prompt: "Use $entailer to check whether this argument is valid and show the formalization."
