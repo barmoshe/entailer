@@ -15,6 +15,7 @@ import {
   checkConsistency,
   checkValidity,
   classify,
+  domainFindingKey,
   domainToMarkdown,
   domainVerdict,
   evaluateArgument,
@@ -29,7 +30,6 @@ import {
   parseFormalizedArgument,
   toMarkdown,
   verdictSchema,
-  type DomainFinding,
   type Formula,
 } from "@entailer/core";
 
@@ -329,11 +329,6 @@ export const evaluateDomainOutput = {
   report: z.record(z.string(), z.unknown()).describe("the full DomainReport"),
   markdown: z.string(),
 };
-
-function domainFindingKey(f: DomainFinding): string {
-  const notes = f.receipts.map((r) => r.note ?? "").sort().join(",");
-  return `${f.evidenceType}|${[...f.concepts].sort().join("+")}|${notes}`;
-}
 
 export function runEvaluateDomain(args: {
   spec: Record<string, unknown>;

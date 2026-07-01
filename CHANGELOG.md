@@ -6,6 +6,20 @@ versioning. All packages are versioned together.
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-07-01
+
+### Fixed
+- **`domain --gate introduced` no longer misses a leak introduced in a different
+  file.** The base↔head finding key was concept-only (both line- and
+  file-independent), so a newly-introduced `concept-fusion` whose concept pair
+  already appeared *anywhere* in the base was mis-attributed as pre-existing and
+  dropped — a false negative in the regression gate. The key now includes each
+  receipt's `uri`. The helper is centralized as `domainFindingKey` (exported from
+  `@entailer/core`) and shared by the CLI and the MCP `evaluate_domain` tool, which
+  previously duplicated it. Known residual: two *different* fused identifiers in the
+  *same* file with the same concept pair still share a key (the identifier is not yet
+  carried on the finding) — tracked for a later increment.
+
 ## [1.2.0] - 2026-07-01
 
 ### Added

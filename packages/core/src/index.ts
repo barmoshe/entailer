@@ -191,6 +191,7 @@ export {
   domainReportSchema,
   buildDomainReport,
   domainVerdict,
+  domainFindingKey,
   domainToMarkdown,
 } from "./domain-report.js";
 

@@ -10,6 +10,7 @@ import { parse as parseYaml } from "yaml";
 import {
   ParseError,
   buildDomainReport,
+  domainFindingKey,
   domainToMarkdown,
   evaluateArgument,
   evaluateDomain,
@@ -22,7 +23,6 @@ import {
   parseFormalizedArgument,
   toMarkdown,
   type DescriptionSeverity,
-  type DomainFinding,
   type DomainReport,
   type DomainSpec,
   type LogicReport,
@@ -275,15 +275,6 @@ export function exitCodeForDomain(report: DomainReport): number {
   return report.findings.some((f) => f.rank === "rank-1") ? 1 : 0;
 }
 
-/** A line-independent fingerprint of a finding, for base↔head introduced-gating. */
-function findingFingerprint(f: DomainFinding): string {
-  const notes = f.receipts
-    .map((r) => r.note ?? "")
-    .sort()
-    .join(",");
-  return `${f.evidenceType}|${[...f.concepts].sort().join("+")}|${notes}`;
-}
-
 /** Resolve head (and optional base) file sets for the domain lens. */
 function resolveDomainFiles(rest: string[]): { head: RepoFile[]; base: RepoFile[] } {
   const baseDir = flagValue(rest, "--base-dir");
@@ -315,10 +306,10 @@ function runDomain(rest: string[]): CliResult {
   if (gate === "introduced" && base.length > 0) {
     const baseReport = evaluateDomain({ files: filterByBoundary(base, spec.boundary), spec, mode });
     const baseVerdicts = new Set(
-      baseReport.findings.filter((f) => f.rank === "rank-1").map(findingFingerprint),
+      baseReport.findings.filter((f) => f.rank === "rank-1").map(domainFindingKey),
     );
     const kept = headReport.findings.filter(
-      (f) => f.rank !== "rank-1" || !baseVerdicts.has(findingFingerprint(f)),
+      (f) => f.rank !== "rank-1" || !baseVerdicts.has(domainFindingKey(f)),
     );
     report = buildDomainReport({
       cluster: headReport.cluster,

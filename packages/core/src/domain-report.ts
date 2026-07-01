@@ -161,6 +161,25 @@ export function domainVerdict(report: DomainReport): "LEAK" | "NO_LEAK_FOUND" | 
   return "NO_LEAK_FOUND";
 }
 
+/**
+ * A stable, line-independent key for a finding — used to diff base↔head for the
+ * `introduced` gate. Includes each receipt's **uri** so the same concept pair in
+ * two different files does not collapse to one key (which would let a
+ * newly-introduced leak in a new file be mis-attributed as pre-existing).
+ *
+ * Known residual: two *different* fused identifiers in the *same* file with the
+ * same concept pair still share a key, because the identifier is not carried on
+ * the finding. Full site-precision would store the identifier and route through
+ * {@link "./adapters/domain".siteSignature} — tracked for a later increment.
+ */
+export function domainFindingKey(f: DomainFinding): string {
+  const sites = f.receipts
+    .map((r) => `${r.uri ?? ""}:${r.note ?? ""}`)
+    .sort()
+    .join(",");
+  return `${f.evidenceType}|${[...f.concepts].sort().join("+")}|${sites}`;
+}
+
 function renderReceipt(loc: DomainLocation): string {
   const where = loc.line !== undefined ? `${loc.uri ? `${loc.uri}:` : "line "}${loc.line}` : loc.uri ?? "?";
   return loc.note ? `\`${where}\` (${loc.note})` : `\`${where}\``;

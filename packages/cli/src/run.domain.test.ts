@@ -57,4 +57,25 @@ describe("domain command (concept-faithfulness lens)", () => {
     const r = run(["domain", "--lens", join(dir, "bad.yaml"), "--repo", dir]);
     expect(r.code).toBe(2);
   });
+
+  it("gate=introduced reports a new leak in a different file even if base has the same concept pair", () => {
+    const lens = tmp();
+    writeFileSync(join(lens, "access.yaml"), LENS);
+    const base = tmp();
+    mkdirSync(join(base, "src"));
+    writeFileSync(join(base, "src", "a.ts"), "export const fuseMemberGuest = 1;\n");
+    const head = tmp();
+    mkdirSync(join(head, "src"));
+    writeFileSync(join(head, "src", "a.ts"), "export const fuseMemberGuest = 1;\n"); // pre-existing, unchanged
+    writeFileSync(join(head, "src", "b.ts"), "export const grantMemberGuest = 2;\n"); // NEW leak, different file
+    const r = run([
+      "domain", "--lens", join(lens, "access.yaml"),
+      "--base-dir", base, "--head-dir", head, "--gate", "introduced", "--json",
+    ]);
+    // The b.ts leak is genuinely introduced; the a.ts one is pre-existing and suppressed.
+    expect(r.code).toBe(1);
+    const verdicts = JSON.parse(r.stdout).findings.filter((f: { rank: string }) => f.rank === "rank-1");
+    expect(verdicts).toHaveLength(1);
+    expect(verdicts[0].receipts[0].uri).toBe("src/b.ts");
+  });
 });
