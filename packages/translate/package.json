@@ -1,7 +1,7 @@
 {
   "name": "@entailer/translate",
-  "version": "1.2.1",
-  "description": "The Entailer LLM translator: prose -> typed IR via Claude structured outputs. The ONLY LLM-touching package; the deterministic core consumes its output.",
+  "version": "1.3.0",
+  "description": "The Entailer autonomous LLM translator (scripts/CI outside an editor): prose -> typed IR via Claude, bring your own ANTHROPIC_API_KEY. Using Entailer from Claude Code / Codex needs no key. The ONLY LLM-touching package; the deterministic core consumes its output.",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",

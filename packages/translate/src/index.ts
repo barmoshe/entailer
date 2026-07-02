@@ -1,5 +1,12 @@
 /**
- * @entailer/translate — the LLM seam (DESIGN §3, §6).
+ * @entailer/translate — the *autonomous* LLM seam (DESIGN §3, §6).
+ *
+ * This is the path for using Entailer **outside an editor**: a script, a CI job, a
+ * server. It needs a model, so it needs your own credentials (`ANTHROPIC_API_KEY`,
+ * or an injected `client`/`formalize`). **You do NOT need this package to use
+ * Entailer from Claude Code or Codex** — there the plugin's `formalize` skill does
+ * the prose→IR step in-context (the agent is already the model, no key, no network)
+ * and then calls the deterministic `@entailer/core` tools. See the plugin skill.
  *
  * The ONLY package that touches an LLM. It turns prose into a typed
  * `FormalizedArgument` IR that the deterministic core then verifies. To stay
@@ -109,7 +116,10 @@ export interface LlmClient {
 export interface TranslateOptions {
   /** Override the LLM call (used in tests). */
   readonly formalize?: Formalizer;
-  /** A client (structural). Defaults to a new `@anthropic-ai/sdk` client. */
+  /**
+   * A client (structural). Defaults to a new `@anthropic-ai/sdk` client that reads
+   * `ANTHROPIC_API_KEY`. Inject any model backend here for the autonomous path.
+   */
   readonly client?: LlmClient;
   /** Model id (defaults to claude-opus-4-8). */
   readonly model?: string;
@@ -142,10 +152,16 @@ async function defaultClient(): Promise<LlmClient> {
   try {
     const mod: any = await import("@anthropic-ai/sdk");
     const Anthropic = mod.default ?? mod.Anthropic;
+    // Reads ANTHROPIC_API_KEY from the environment. This is the autonomous path;
+    // there is no key-less endpoint for a Node process (only the editor plugin,
+    // where the agent formalizes in-context, is key-less).
     return new Anthropic() as LlmClient;
   } catch {
     throw new TranslationError(
-      "@anthropic-ai/sdk is not installed; pass `client` or `formalize` to translate()",
+      "no LLM available to translate(): install `@anthropic-ai/sdk` and set ANTHROPIC_API_KEY " +
+        "(the autonomous path), or pass a `client`/`formalize` of your own. " +
+        "Using Entailer from Claude Code or Codex needs no key — the plugin's `formalize` skill " +
+        "does this step in-context and calls the deterministic @entailer/core tools.",
     );
   }
 }
