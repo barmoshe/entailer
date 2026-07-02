@@ -6,6 +6,27 @@ versioning. All packages are versioned together.
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-07-02
+
+### Changed
+- **The Claude Code plugin now runs a real deterministic check — key-less.** The
+  Claude-side `formalize` skill previously carried only the reference library and
+  walked the logician's rubric by hand, never invoking the trusted core. It now
+  mirrors the Codex plugin: formalize the prose **in-context** (the agent is the
+  model, so **no `ANTHROPIC_API_KEY` and no `@entailer/translate`**), then call the
+  deterministic `entailer` MCP tools (or `npx -y @entailer/cli`) for the verdict.
+  From an editor, Entailer is fully key-less end to end.
+- **`scripts/vendor-skill.mjs` is now references-only for both plugins.** Each plugin
+  **owns its `SKILL.md`** (the tool-wiring lives there); the vendor step mirrors only
+  the shared `references/` from the workshop and never overwrites either `SKILL.md`.
+  The `entailer-data` drift guard is unchanged.
+- **`@entailer/translate` reframed as the *autonomous* path (no behavior change).**
+  Its description, JSDoc, README row, and the `defaultClient()` error now state
+  plainly that it is for scripts/CI **outside** an editor (bring your own
+  `ANTHROPIC_API_KEY`), and that using Entailer from Claude Code / Codex needs no key.
+  There is no key-less endpoint for a Node process; the injectable `client`/`formalize`
+  seam is unchanged.
+
 ## [1.2.1] - 2026-07-01
 
 ### Fixed

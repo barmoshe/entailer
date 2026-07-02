@@ -198,22 +198,26 @@ to check a supplied formalization.
 | [**@entailer/core**](./packages/core) | The trusted kernel: Formula AST, DSL parser, propositional tableau + DPLL, classification, the IR, and the `LogicReport` schema. Pure, dependency-light. | [![v](https://img.shields.io/npm/v/@entailer/core.svg?label=)](https://www.npmjs.com/package/@entailer/core) |
 | [**@entailer/cli**](./packages/cli) | The `entailer` binary: evaluate a formalization, `--json` output, honest exit codes including a distinct `UNKNOWN`-blocked code. | [![v](https://img.shields.io/npm/v/@entailer/cli.svg?label=)](https://www.npmjs.com/package/@entailer/cli) |
 | [**@entailer/mcp**](./packages/mcp) | Stdio MCP server exposing the deterministic `check_*` / `classify` / `evaluate_*` tools with structured output. Stateless; the caller formalizes in-context, then calls a tool. | [![v](https://img.shields.io/npm/v/@entailer/mcp.svg?label=)](https://www.npmjs.com/package/@entailer/mcp) |
-| [**@entailer/translate**](./packages/translate) | The LLM seam, the *only* package that touches a model. Turns prose into the typed IR via Claude, then the core verifies it. A parse failure or undeclared atom forces `UNKNOWN` over a confident-but-wrong verdict. The formalizer is injectable, so the engine is fully testable offline. | [![v](https://img.shields.io/npm/v/@entailer/translate.svg?label=)](https://www.npmjs.com/package/@entailer/translate) |
+| [**@entailer/translate**](./packages/translate) | The **autonomous** LLM seam, the *only* package that touches a model. For scripts and CI **outside an editor**: turns prose into the typed IR via Claude (bring your own `ANTHROPIC_API_KEY`), then the core verifies it. A parse failure or undeclared atom forces `UNKNOWN` over a confident-but-wrong verdict. The formalizer is injectable, so the engine is fully testable offline. **From Claude Code / Codex you don't need this package or a key** — the plugin formalizes in-context. | [![v](https://img.shields.io/npm/v/@entailer/translate.svg?label=)](https://www.npmjs.com/package/@entailer/translate) |
 | [**@entailer/viz**](./packages/viz) | Deterministic visualizers: typed view-models plus dependency-free text / SVG / Mermaid renderers. Colors a verdict only when its certificate (proof or counter-model) is present, so a picture can never launder a hint into a verdict. | [![v](https://img.shields.io/npm/v/@entailer/viz.svg?label=)](https://www.npmjs.com/package/@entailer/viz) |
 | [**@entailer/solver**](./packages/solver) | Opt-in SMT escalation: a pure SMT-LIB emitter plus a lazily-probed Z3 backend that degrades to `UNKNOWN` when `z3-solver` is absent. An amplifier, never a gate. | [![v](https://img.shields.io/npm/v/@entailer/solver.svg?label=)](https://www.npmjs.com/package/@entailer/solver) |
 
 ## Editors and agents
 
 Entailer ships an MCP server plus two editor plugins, so an agent can call the
-deterministic checker directly.
+deterministic checker directly. **From an editor this is fully key-less:** the agent
+*is* the model, so it formalizes prose in-context (no `ANTHROPIC_API_KEY`, no network,
+no `@entailer/translate`) and then calls the deterministic tools for the verdict. The
+key-carrying [`@entailer/translate`](./packages/translate) is only for autonomous use
+*outside* an editor.
 
 - **MCP server**: `npx @entailer/mcp` (declared in [`plugin/.mcp.json`](./plugin/.mcp.json)).
   Exposes `check_validity`, `check_consistency`, `classify_formula`, `evaluate_sentence`,
   `evaluate_argument`, `evaluate_prompt`, `evaluate_markdown`, `evaluate_repo`,
   `evaluate_pull_request`, and `evaluate_domain`.
-- **Claude Code plugin**: in [`plugin/`](./plugin), wiring the MCP server and a vendored
-  `formalize` skill.
-- **Codex plugin**: in [`codex/`](./codex), the same server via `npx -y @entailer/mcp`.
+- **Claude Code plugin**: in [`plugin/`](./plugin) — an MCP server plus a `formalize` skill
+  that formalizes in-context and then runs a real deterministic check (MCP tools or the CLI).
+- **Codex plugin**: in [`codex/`](./codex), the same server and skill via `npx -y @entailer/mcp`.
 
 <details>
 <summary>Why an MCP tool instead of "just ask the model"?</summary>

@@ -211,7 +211,7 @@ Steal **Logic-LM's** loop (MIT): feed solver error / `unknown` back to the trans
 
 ## 7. MCP tools
 
-`@modelcontextprotocol/sdk ^1.20.0`, `registerTool` with `outputSchema` + `structuredContent`, stdio, all tools **stateless**. Mirrors the house `palette-oklch` convention. **Default formalization path is one-call** (Claude formalizes *in-context* via the skill, then calls the deterministic `check_*` tools) — the two-call "instruction object" protocol is **rejected** (MCP `sampling` is unsupported in Claude Code/Desktop; an unenforced re-call convention is fragile and a careless agent treats the instruction as the answer).
+`@modelcontextprotocol/sdk ^1.20.0`, `registerTool` with `outputSchema` + `structuredContent`, stdio, all tools **stateless**. Mirrors the house `palette-oklch` convention. **Default formalization path is one-call** (Claude formalizes *in-context* via the skill, then calls the deterministic `check_*` tools) — the two-call "instruction object" protocol is **rejected** (MCP `sampling` is unsupported in Claude Code/Desktop; an unenforced re-call convention is fragile and a careless agent treats the instruction as the answer). **Realized both sides in 1.3.0:** each plugin's `SKILL.md` now formalizes in-context and then runs a real deterministic check (MCP tools or the CLI), so the editor path is key-less end to end — the key-carrying `@entailer/translate` is only for autonomous use outside an editor. (Re-confirmed 2026-07: Claude Code still exposes no key-less LLM to a Node subprocess — no MCP `sampling`, no injected credentials, no key-less endpoint outside the browser-artifact sandbox — so the in-context skill remains the only key-less route.)
 
 | Tool | One-line schema |
 |---|---|

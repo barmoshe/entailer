@@ -1,11 +1,17 @@
 /**
- * One-way vendor of the `formalize` skill: workshop → this public repo.
+ * One-way vendor of the `formalize` reference library: workshop → this public repo.
  *
- * Source of truth is the bar_builds workshop's `.claude/skills/formalize/`. This
- * script copies it into `plugin/skills/formalize/` and mirrors the references into
- * `codex/skills/entailer/references/` so both plugins ship a self-contained
+ * Source of truth is the bar_builds workshop's `.claude/skills/formalize/references/`.
+ * This script mirrors **only the `references/`** into both plugins —
+ * `plugin/skills/formalize/references/` (Claude) and
+ * `codex/skills/entailer/references/` (Codex) — so both ship a self-contained
  * prose/judgment layer. The copy is **one-way** — never edit the vendored files
  * expecting changes to flow back upstream.
+ *
+ * Each plugin **owns its own `SKILL.md`** (it wires the deterministic Entailer
+ * check — the MCP tools / CLI — on top of the shared references, so from an editor
+ * the trusted verifier is actually invoked, key-less). The vendor step deliberately
+ * does NOT touch either `SKILL.md`; only the references are refreshed.
  *
  * The machine-consumable taxonomy is generated from fenced `entailer-data` blocks
  * in the vendored references by `scripts/gen-taxonomy.mjs` (drift-gated in CI).
@@ -27,7 +33,9 @@ const source = resolve(
   repoRoot,
   argSource ?? "../bar_builds/.claude/skills/formalize",
 );
-const dest = resolve(repoRoot, "plugin", "skills", "formalize");
+const sourceRefs = resolve(source, "references");
+const pluginSkillDir = resolve(repoRoot, "plugin", "skills", "formalize");
+const pluginRefsDest = resolve(pluginSkillDir, "references");
 const codexRefsDest = resolve(repoRoot, "codex", "skills", "entailer", "references");
 
 if (!existsSync(source)) {
@@ -45,7 +53,7 @@ function dataFiles(dir) {
     .filter((f) => f.endsWith(".md"))
     .filter((f) => readFileSync(resolve(refs, f), "utf8").includes(DATA_MARKER));
 }
-const vendoredData = existsSync(dest) ? dataFiles(dest) : [];
+const vendoredData = existsSync(pluginSkillDir) ? dataFiles(pluginSkillDir) : [];
 const sourceData = dataFiles(source);
 const wouldStrip = vendoredData.filter((f) => !sourceData.includes(f));
 if (wouldStrip.length > 0) {
@@ -58,11 +66,16 @@ if (wouldStrip.length > 0) {
   process.exit(2);
 }
 
-if (existsSync(dest)) rmSync(dest, { recursive: true, force: true });
-cpSync(source, dest, { recursive: true });
-if (existsSync(resolve(repoRoot, "codex", "skills", "entailer"))) {
-  if (existsSync(codexRefsDest)) rmSync(codexRefsDest, { recursive: true, force: true });
-  cpSync(resolve(dest, "references"), codexRefsDest, { recursive: true });
-  console.log(`mirrored ${resolve(dest, "references")} -> ${codexRefsDest}`);
+if (!existsSync(sourceRefs)) {
+  console.error(`vendor-skill: source has no references/ dir: ${sourceRefs}`);
+  process.exit(1);
 }
-console.log(`vendored ${source} -> ${dest}`);
+
+// Mirror references only — each plugin owns its SKILL.md, so leave it untouched.
+for (const refsDest of [pluginRefsDest, codexRefsDest]) {
+  // Only mirror into a plugin that already exists (its SKILL.md lives one level up).
+  if (!existsSync(resolve(refsDest, ".."))) continue;
+  if (existsSync(refsDest)) rmSync(refsDest, { recursive: true, force: true });
+  cpSync(sourceRefs, refsDest, { recursive: true });
+  console.log(`mirrored ${sourceRefs} -> ${refsDest}`);
+}

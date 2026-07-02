@@ -1,6 +1,6 @@
 {
   "name": "@entailer/viz",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Deterministic visualizers for Entailer: typed view-models + dependency-free text / SVG / Mermaid renderers. Colors a verdict only when its certificate (proof / counter-model) is present.",
   "license": "MIT",
   "type": "module",
