@@ -15,6 +15,21 @@ The plugin root is this plugin's own folder. The reference library lives in
 `references/09-evaluation-rubric.md` for the full report shape and
 `references/06-formalization-nl-to-logic.md` for English-to-logic translation.
 
+## How this works (and why it needs no API key)
+
+Entailer splits the job in two, and this plugin runs both halves for free inside your
+editor session:
+
+1. **Codex formalizes in-context.** Translating prose into a symbol dictionary and
+   logic-DSL is the untrusted proposer step. Codex already does it here, in this
+   session. **No `ANTHROPIC_API_KEY`, no `@entailer/translate`, no network call.**
+2. **The deterministic core verifies.** Whether the conclusion follows and whether the
+   claim set is consistent is decided by a reproducible verifier, not by the model.
+   Call it through the `entailer` MCP tools (or `npx -y @entailer/cli`) below.
+
+The key-carrying [`@entailer/translate`](https://www.npmjs.com/package/@entailer/translate)
+is only for autonomous use *outside* an editor (scripts, CI). You never need it here.
+
 ## Workflow
 
 1. Scope the target: sentence, argument, prompt, Markdown/spec, repo, or PR.
